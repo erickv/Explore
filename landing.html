@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Explore – MIDI Visualizer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      margin: 0;
+      font-family: system-ui, sans-serif;
+      background: #0e0e0e;
+      color: white;
+      line-height: 1.6;
+    }
+    header {
+      padding: 4rem 2rem;
+      text-align: center;
+    }
+    header h1 {
+      font-size: 3rem;
+      margin-bottom: 0.5rem;
+      color: #00ffff;
+    }
+    .container {
+      max-width: 800px;
+      margin: auto;
+      padding: 2rem;
+    }
+    a.button {
+      display: inline-block;
+      margin-top: 1rem;
+      padding: 0.75rem 1.5rem;
+      color: #0e0e0e;
+      background: #00ffff;
+      text-decoration: none;
+      border-radius: 6px;
+      font-weight: bold;
+    }
+    iframe {
+      width: 100%;
+      height: 500px;
+      border: none;
+      margin-top: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(0,255,255,0.2);
+    }
+    footer {
+      text-align: center;
+      padding: 2rem;
+      font-size: 0.9rem;
+      color: #888;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Explore</h1>
+    <p>Interactive MIDI-powered 3D Visuals</p>
+    <a class="button" href="index.html" target="_blank">Launch Visualizer</a>
+  </header>
+
+  <div class="container">
+    <h2>🎛 What Is It?</h2>
+    <p>This is a browser-based wireframe visualizer controlled by MIDI or sliders. It supports shape switching, audio reactivity via mic input, and even lets you record videos.</p>
+
+    <h2>⚙ Features</h2>
+    <ul>
+      <li>Live MIDI CC input or manual slider control</li>
+      <li>Background/grid color customization</li>
+      <li>Audio-reactive pulsing from microphone</li>
+      <li>Shape selector: torus, cube, grid, etc.</li>
+      <li>Save/load presets</li>
+      <li>Record video from the canvas</li>
+    </ul>
+
+    <h2>🔍 Live Preview</h2>
+    <iframe src="index.html" title="Visualizer Preview"></iframe>
+  </div>
+
+  <footer>
+    &copy; 2025 Erick V — <a href="https://github.com/erickv/Explore" style="color:#00ffff;">View on GitHub</a>
+  </footer>
+</body>
+</html>
