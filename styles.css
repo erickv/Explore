@@ -139,3 +139,9 @@ h1 {
   margin: 0;
   font-style: italic;
 }
+
+.visualizer-frame {
+  border-radius: 10px;
+  overflow: hidden;
+  background-color: #101122;
+}
