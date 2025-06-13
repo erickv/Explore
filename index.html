@@ -2,83 +2,46 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Explore – MIDI Visualizer</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <style>
-    body {
-      margin: 0;
-      font-family: system-ui, sans-serif;
-      background: #0e0e0e;
-      color: white;
-      line-height: 1.6;
-    }
-    header {
-      padding: 4rem 2rem;
-      text-align: center;
-    }
-    header h1 {
-      font-size: 3rem;
-      margin-bottom: 0.5rem;
-      color: #00ffff;
-    }
-    .container {
-      max-width: 800px;
-      margin: auto;
-      padding: 2rem;
-    }
-    a.button {
-      display: inline-block;
-      margin-top: 1rem;
-      padding: 0.75rem 1.5rem;
-      color: #0e0e0e;
-      background: #00ffff;
-      text-decoration: none;
-      border-radius: 6px;
-      font-weight: bold;
-    }
-    iframe {
-      width: 100%;
-      height: 500px;
-      border: none;
-      margin-top: 2rem;
-      border-radius: 12px;
-      box-shadow: 0 0 20px rgba(0,255,255,0.2);
-    }
-    footer {
-      text-align: center;
-      padding: 2rem;
-      font-size: 0.9rem;
-      color: #888;
-    }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Innovers Labs | Exploration Gallery</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <header>
-    <h1>Explore</h1>
-    <p>Interactive MIDI-powered 3D Visuals</p>
-    <a class="button" href="visualizer.html" target="_blank">Launch Visualizer</a>
+    <div class="logo">✴︎ Innovers <span>Labs</span></div>
+    <h1>Exploration Gallery</h1>
   </header>
 
-  <div class="container">
-    <h2>🎛 What Is It?</h2>
-    <p>This is a browser-based wireframe visualizer controlled by MIDI or sliders. It supports shape switching, audio reactivity via mic input, and even lets you record videos.</p>
+  <section class="toolbar">
+    <div class="sort">
+      <label for="sort">Sort by</label>
+      <select id="sort">
+        <option value="default">Default</option>
+        <option value="price-low">Price: Low to High</option>
+        <option value="price-high">Price: High to Low</option>
+      </select>
+    </div>
+    <div class="category">
+      <label for="category">Category</label>
+      <select id="category">
+        <option value="all">All</option>
+        <option value="audio">Audio</option>
+        <option value="computing">Computing</option>
+        <option value="wearables">Wearables</option>
+      </select>
+    </div>
+    <div class="count" id="itemCount">0 items</div>
+  </section>
 
-    <h2>⚙ Features</h2>
-    <ul>
-      <li>Live MIDI CC input or manual slider control</li>
-      <li>Background/grid color customization</li>
-      <li>Audio-reactive pulsing from microphone</li>
-      <li>Shape selector: torus, cube, grid, etc.</li>
-      <li>Save/load presets</li>
-      <li>Record video from the canvas</li>
-    </ul>
+  <main class="grid" id="productGrid"></main>
 
-    <h2>🔍 Live Preview</h2>
-    <iframe src="visualizer.html" title="Visualizer Preview"></iframe>
-  </div>
-
-  <footer>
-    &copy; 2025 Erick V — <a href="https://github.com/erickv/Explore" style="color:#00ffff;">View on GitHub</a>
+  <footer class="pagination">
+    <button class="active">1</button>
+    <button>2</button>
+    <button>3</button>
+    <span>&rsaquo;</span>
   </footer>
+
+  <script src="script.js"></script>
 </body>
 </html>

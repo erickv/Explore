@@ -1,0 +1,121 @@
+body {
+  background-color: #0b0c1d;
+  color: #e3e3e3;
+  font-family: 'Helvetica Neue', sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+header {
+  text-align: center;
+  padding: 2rem 1rem;
+}
+
+.logo {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #7aa8ff;
+}
+
+.logo span {
+  color: #c4c4ff;
+}
+
+h1 {
+  margin-top: 0.5rem;
+  font-size: 2.5rem;
+  color: #ffffff;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 3rem;
+  background-color: #131428;
+  border-top: 1px solid #1e1e33;
+  border-bottom: 1px solid #1e1e33;
+}
+
+.toolbar label {
+  margin-right: 0.5rem;
+}
+
+.toolbar select {
+  background-color: #1e1e33;
+  color: #e3e3e3;
+  border: none;
+  padding: 0.4rem 0.6rem;
+  border-radius: 4px;
+}
+
+.grid {
+  column-count: 3;
+  column-gap: 2rem;
+  padding: 2rem 3rem;
+}
+
+.card {
+  background-color: #1c1e2e;
+  padding: 1rem;
+  border-radius: 10px;
+  text-align: center;
+  break-inside: avoid;
+  margin-bottom: 2rem;
+}
+
+.card img {
+  width: 100%;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.card h2 {
+  font-size: 1.1rem;
+  margin: 0.5rem 0;
+}
+
+.card p {
+  color: #9faaff;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  border-top: 1px solid #1e1e33;
+}
+
+.pagination button {
+  background-color: #1e1e33;
+  color: #e3e3e3;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.pagination button.active {
+  background-color: #4254f5;
+  color: #fff;
+}
+
+.pagination span {
+  color: #888;
+  font-size: 1.5rem;
+}
+
+
+.placeholder {
+  width: 100%;
+  height: 200px;
+  background-color: #2a2b3c;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  color: #555;
+}
