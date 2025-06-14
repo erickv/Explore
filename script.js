@@ -37,3 +37,32 @@ function renderProducts() {
 categoryFilter.addEventListener("change", renderProducts);
 sortFilter.addEventListener("change", renderProducts);
 window.onload = renderProducts;
+
+document.getElementById("toggleVisualizer").addEventListener("click", () => {
+  const container = document.getElementById("visualizerContainer");
+  if (container.classList.contains("visualizer-collapsed")) {
+    container.classList.remove("visualizer-collapsed");
+  } else {
+    container.classList.add("visualizer-collapsed");
+  }
+});
+
+// Simple wireframe pulse simulation
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+let t = 0;
+
+function drawVisualizer() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.strokeStyle = "red";
+  ctx.beginPath();
+  for (let i = 0; i < 360; i += 10) {
+    const x = 300 + Math.cos((i + t) * 0.02) * 100;
+    const y = 150 + Math.sin((i + t) * 0.02) * 100;
+    ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+  t += 1;
+  requestAnimationFrame(drawVisualizer);
+}
+drawVisualizer();
