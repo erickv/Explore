@@ -1,1 +1,189 @@
-test
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Showcase Site</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Helvetica Neue', sans-serif;
+      background: #0e0e0e;
+      color: #fff;
+    }
+    .header, .footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 40px;
+      background: #111;
+    }
+    .main-nav ul {
+      list-style: none;
+      display: flex;
+      gap: 20px;
+    }
+    .main-nav ul li a {
+      text-decoration: none;
+      color: #ccc;
+    }
+    .cta-button, .cta-primary {
+      background: #5f5fff;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 5px;
+      color: white;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .hero {
+      text-align: center;
+      padding: 80px 20px;
+    }
+    .hero h1 {
+      font-size: 48px;
+    }
+    .hero p {
+      font-size: 18px;
+      margin: 20px 0;
+    }
+    .feature-carousel, .partner-logos, .social-proof, .pricing-section {
+      padding: 60px 40px;
+    }
+    .carousel-container {
+      overflow-x: auto;
+      white-space: nowrap;
+      position: relative;
+    }
+    .carousel {
+      display: flex;
+      gap: 20px;
+    }
+    .carousel .card {
+      background: #222;
+      padding: 20px;
+      min-width: 200px;
+      border-radius: 10px;
+      flex: 0 0 auto;
+    }
+    .fade-overlay {
+      position: absolute;
+      right: 0;
+      top: 0;
+      width: 80px;
+      height: 100%;
+      background: linear-gradient(to right, transparent, #0e0e0e);
+      pointer-events: none;
+    }
+    .logo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 20px;
+    }
+    .logo {
+      background: #222;
+      padding: 20px;
+      text-align: center;
+      border-radius: 6px;
+    }
+    .tweets {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .tweet {
+      background: #1a1a1a;
+      padding: 20px;
+      border-radius: 10px;
+      font-style: italic;
+    }
+    .pricing-section .toggle {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 30px;
+    }
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 50px;
+      height: 24px;
+    }
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: .4s;
+      border-radius: 24px;
+    }
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 4px;
+      bottom: 3px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+    input:checked + .slider {
+      background-color: #5f5fff;
+    }
+    input:checked + .slider:before {
+      transform: translateX(26px);
+    }
+    .pricing-cards {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+    }
+    .pricing-cards .card {
+      background: #1e1e1e;
+      padding: 30px;
+      border-radius: 10px;
+      flex: 1;
+      text-align: center;
+    }
+    .pricing-cards .highlight {
+      background: #5f5fff;
+      color: white;
+    }
+    .footer-nav {
+      list-style: none;
+      display: flex;
+      gap: 20px;
+    }
+    .footer-nav li a {
+      color: #aaa;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <!-- HTML content unchanged from earlier -->
+  <script>
+    document.getElementById('togglePricing').addEventListener('change', function () {
+      const plans = document.querySelectorAll('.pricing-cards .card');
+      plans.forEach(plan => {
+        if (this.checked) {
+          plan.classList.add('yearly');
+        } else {
+          plan.classList.remove('yearly');
+        }
+      });
+    });
+  </script>
+</body>
+</html>
