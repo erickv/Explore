@@ -3,94 +3,56 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Showcase Site</title>
-  <link rel="stylesheet" href="styles.css" />
+  <title>InnoverseLABS</title>
+  <link rel="stylesheet" href="styles.css?v=2.0" />
 </head>
 <body>
-  <header class="header">
-    <div class="logo">Innoverselabs</div>
-    <nav class="main-nav">
-      <ul>
-        <li><a href="#features">Features</a></li>
-        <li><a href="#partners">Partners</a></li>
-        <li><a href="#pricing">Pricing</a></li>
-      </ul>
-    </nav>
-    <button class="cta-button">Get Started</button>
+  <header class="hero-section">
+    <div class="logo-container">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Atomic_symbol.svg/120px-Atomic_symbol.svg.png" alt="logo" class="hero-logo">
+    </div>
+    <h1>InnoverseLABS is where<br>innovation meets<br>experimentation.</h1>
+    <p>Explore cutting-edge projects and breakthrough ideas. Share your latest innovations and collaborate with fellow researchers. Discover emerging technologies and push the boundaries of what’s possible.</p>
+    <div class="cta-row">
+      <input type="email" placeholder="Enter email to join" />
+      <button class="cta-button green">Join Innovation</button>
+    </div>
   </header>
 
-  <section class="hero">
-    <h1>Design Smarter, Build Faster</h1>
-    <p>A playground to showcase AI, design, and UX tools.</p>
-    <button class="cta-primary">Start Free</button>
-  </section>
+  <main class="project-section">
+    <div class="section-header">
+      <h2>Featured Projects</h2>
+      <a href="#" class="view-all">VIEW ALL PROJECTS →</a>
+    </div>
 
-  <section class="feature-carousel" id="features">
-    <h2>Explore Features</h2>
-    <div class="carousel-container">
-      <div class="carousel">
-        <a class="card" href="visualizer.html">Animation Tools</a>
-        <div class="card">UI Components</div>
-        <div class="card">Wireframes</div>
-        <div class="card">Diagrams</div>
-        <div class="card">Design Tokens</div>
+    <div class="project-grid">
+      <a href="visualizer.html" class="project-card">
+        <div class="project-title">Neural Network Visualization Engine</div>
+        <div class="project-meta">Dr. Sarah Chen • 👁 1245 • 💬 6 • ⭐ 48</div>
+      </a>
+      <div class="project-card">
+        <div class="project-title">Quantum Computing Interface Design</div>
+        <div class="project-meta">Alex Rodriguez • 👁 1097 • 💬 2 • ⭐ 66 <span class="badge">RESEARCHER</span></div>
       </div>
-      <div class="fade-overlay"></div>
+      <div class="project-card">
+        <div class="project-title">AR Molecular Structure Explorer</div>
+        <div class="project-meta">Emma Thompson • 👁 873 • 💬 1 • ⭐ 18</div>
+      </div>
+      <div class="project-card">
+        <div class="project-title">Sustainable Energy Data Dashboard</div>
+        <div class="project-meta">Michael Zhang • 👁 642 • 💬 0 • ⭐ 12</div>
+      </div>
+      <div class="project-card">
+        <div class="project-title">Biotech Lab Management System</div>
+        <div class="project-meta">Dr. Lisa Park • 👁 858 • 💬 0 • ⭐ 20</div>
+      </div>
+      <div class="project-card">
+        <div class="project-title">Space Mission Planning Algorithm</div>
+        <div class="project-meta">James Wilson • 👁 1259 • 💬 9 • ⭐ 54 <span class="badge">RESEARCHER</span></div>
+      </div>
     </div>
-  </section>
+  </main>
 
-  <section class="partner-logos" id="partners">
-    <h2>Trusted By</h2>
-    <div class="logo-grid">
-      <div class="logo">Adobe</div>
-      <div class="logo">Figma</div>
-      <div class="logo">Notion</div>
-      <div class="logo">Framer</div>
-      <div class="logo">Linear</div>
-    </div>
-  </section>
-
-  <section class="social-proof">
-    <h2>People Are Talking</h2>
-    <div class="tweets">
-      <div class="tweet">“This tool changed my workflow.”</div>
-      <div class="tweet">“Simple, smart and beautifully done.”</div>
-    </div>
-  </section>
-
-  <section class="pricing-section" id="pricing">
-    <h2>Pricing Plans</h2>
-    <div class="toggle">
-      <span>Monthly</span>
-      <label class="switch">
-        <input type="checkbox" id="togglePricing" />
-        <span class="slider"></span>
-      </label>
-      <span>Yearly</span>
-    </div>
-    <div class="pricing-cards">
-      <div class="card">Free</div>
-      <div class="card highlight">Pro</div>
-      <div class="card">Team</div>
-    </div>
-  </section>
-
-  <footer class="footer">
-    <div class="logo">Innoverselabs</div>
-    <ul class="footer-nav">
-      <li><a href="#">Privacy</a></li>
-      <li><a href="#">Terms</a></li>
-      <li><a href="#">Contact</a></li>
-    </ul>
-  </footer>
-
-  <script>
-    document.getElementById('togglePricing').addEventListener('change', function () {
-      const plans = document.querySelectorAll('.pricing-cards .card');
-      plans.forEach(plan => {
-        this.checked ? plan.classList.add('yearly') : plan.classList.remove('yearly');
-      });
-    });
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>
