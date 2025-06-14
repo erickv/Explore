@@ -1,10 +1,188 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8" />
   <title>Visualizer Tool</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    html, body { margin: 0; overflow: hidden; background: #000; }
+    canvas { display: block; }
+    #ui {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      font-family: monospace;
+      color: white;
+      z-index: 10;
+    }
+    .panel {
+      background: rgba(0,0,0,0.6);
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 8px;
+    }
+    label, select, input, button {
+      display: block;
+      margin-top: 8px;
+    }
+    input[type=range] { width: 160px; }
+    input[type=color] { width: 100px; }
+  </style>
 </head>
 <body>
-  <h1>This is your old visualizer.html page</h1>
-  <p>Keep building cool tools here!</p>
+  <div id="ui">
+    <div class="panel">
+      <strong>Shape</strong>
+      <select id="shapeSelect">
+        <option value="torusKnot">Torus Knot</option>
+        <option value="sphere">Sphere</option>
+        <option value="cube">Cube</option>
+        <option value="icosahedron">Icosahedron</option>
+        <option value="grid">Grid</option>
+      </select>
+    </div>
+
+    <div class="panel" id="sliders"></div>
+
+    <div class="panel">
+      <label>BG Color <input type="color" id="bgColor" value="#000000" /></label>
+      <label>Grid Color <input type="color" id="gridColor" value="#00ffff" /></label>
+      <label><input type="checkbox" id="showGrid" checked /> Show Grid</label>
+    </div>
+
+    <div class="panel">
+      <button id="recordBtn">⏺ Start/Stop Record</button>
+      <button id="enableMic">🎤 Enable Mic</button>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+  <script>
+    let scene, camera, renderer, mesh, gridHelper, pulse = 0;
+    let audioLevel = 0, micEnabled = false, audioCtx, analyser, dataArray;
+    let recorder, chunks = [], recording = false;
+    const midiState = { 35: 0, 36: 0, 37: 0, 38: 0, 39: 0, 40: 0, 41: 0 };
+    const sliders = {};
+    const shapeSelect = document.getElementById("shapeSelect");
+
+    function createMesh(shape = "torusKnot") {
+      if (mesh) scene.remove(mesh);
+      let geometry;
+      switch (shape) {
+        case "sphere": geometry = new THREE.SphereGeometry(10, 32, 32); break;
+        case "cube": geometry = new THREE.BoxGeometry(15, 15, 15); break;
+        case "icosahedron": geometry = new THREE.IcosahedronGeometry(10, 1); break;
+        case "grid": geometry = new THREE.PlaneGeometry(50, 50, 20, 20); break;
+        default: geometry = new THREE.TorusKnotGeometry(10, 3, 120, 16);
+      }
+      const material = new THREE.MeshBasicMaterial({ color: 0x00ffff, wireframe: true });
+      mesh = new THREE.Mesh(geometry, material);
+      scene.add(mesh);
+    }
+
+    function setupScene() {
+      scene = new THREE.Scene();
+      camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+      camera.position.z = 40;
+      renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      document.body.appendChild(renderer.domElement);
+      gridHelper = new THREE.GridHelper(100, 40, 0x00ffff, 0x00ffff);
+      scene.add(gridHelper);
+      createMesh();
+    }
+
+    function animate() {
+      requestAnimationFrame(animate);
+      if (!mesh) return;
+      mesh.rotation.x += 0.005 + midiState[35] * 0.05;
+      mesh.rotation.y += 0.005 + midiState[36] * 0.05;
+      const audioMod = micEnabled ? (audioLevel / 255) * 2 : 1;
+      const scale = 1 + Math.sin(pulse) * 0.2 * midiState[37] * audioMod;
+      mesh.scale.set(scale, scale, scale);
+      pulse += 0.05 + midiState[38] * 0.1;
+      mesh.material.color.setHSL(midiState[39], 1, 0.5);
+      renderer.setClearColor(document.getElementById("bgColor").value);
+      gridHelper.visible = document.getElementById("showGrid").checked;
+      gridHelper.material.color.set(document.getElementById("gridColor").value);
+      renderer.render(scene, camera);
+      if (micEnabled && analyser) {
+        analyser.getByteFrequencyData(dataArray);
+        audioLevel = dataArray[0];
+      }
+    }
+
+    function setupSliders() {
+      const panel = document.getElementById("sliders");
+      [35,36,37,38,39,40,41].forEach(cc => {
+        const wrapper = document.createElement("label");
+        wrapper.textContent = `CC ${cc}`;
+        const slider = document.createElement("input");
+        slider.type = "range"; slider.min = 0; slider.max = 127; slider.value = 0;
+        slider.addEventListener("input", () => midiState[cc] = slider.value / 127);
+        wrapper.appendChild(slider);
+        panel.appendChild(wrapper);
+        sliders[cc] = slider;
+      });
+    }
+
+    function setupMIDI() {
+      navigator.requestMIDIAccess?.().then(access => {
+        for (const input of access.inputs.values()) {
+          input.onmidimessage = msg => {
+            const [status, cc, val] = msg.data;
+            if ((status & 0xF0) === 0xB0 && cc in sliders) {
+              midiState[cc] = val / 127;
+              sliders[cc].value = val;
+            }
+          };
+        }
+      });
+    }
+
+    function setupEvents() {
+      shapeSelect.onchange = () => createMesh(shapeSelect.value);
+      document.getElementById("recordBtn").onclick = () => {
+        if (!recording) {
+          chunks = [];
+          const stream = renderer.domElement.captureStream(30);
+          recorder = new MediaRecorder(stream);
+          recorder.ondataavailable = e => chunks.push(e.data);
+          recorder.onstop = () => {
+            const blob = new Blob(chunks, { type: 'video/webm' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob); a.download = "visuals.webm"; a.click();
+          };
+          recorder.start();
+        } else {
+          recorder.stop();
+        }
+        recording = !recording;
+      };
+      document.getElementById("enableMic").onclick = () => {
+        navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+          const source = audioCtx.createMediaStreamSource(stream);
+          analyser = audioCtx.createAnalyser();
+          analyser.fftSize = 64;
+          dataArray = new Uint8Array(analyser.frequencyBinCount);
+          source.connect(analyser);
+          micEnabled = true;
+        });
+      };
+    }
+
+    window.addEventListener("resize", () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    setupScene();
+    setupSliders();
+    setupMIDI();
+    setupEvents();
+    animate();
+  </script>
 </body>
 </html>
