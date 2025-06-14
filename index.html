@@ -2,13 +2,95 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Visualizer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Showcase Site</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <canvas id="canvas"></canvas>
-  <noscript>Please enable JavaScript to view the visualizer.</noscript>
-  <script type="module" src="script.js"></script>
+  <header class="header">
+    <div class="logo">Innoverselabs</div>
+    <nav class="main-nav">
+      <ul>
+        <li><a href="#features">Features</a></li>
+        <li><a href="#partners">Partners</a></li>
+        <li><a href="#pricing">Pricing</a></li>
+      </ul>
+    </nav>
+    <button class="cta-button">Get Started</button>
+  </header>
+
+  <section class="hero">
+    <h1>Design Smarter, Build Faster</h1>
+    <p>A playground to showcase AI, design, and UX tools.</p>
+    <button class="cta-primary">Start Free</button>
+  </section>
+
+  <section class="feature-carousel" id="features">
+    <h2>Explore Features</h2>
+    <div class="carousel-container">
+      <div class="carousel">
+        <a class="card" href="visualizer.html">Animation Tools</a>
+        <div class="card">UI Components</div>
+        <div class="card">Wireframes</div>
+        <div class="card">Diagrams</div>
+        <div class="card">Design Tokens</div>
+      </div>
+      <div class="fade-overlay"></div>
+    </div>
+  </section>
+
+  <section class="partner-logos" id="partners">
+    <h2>Trusted By</h2>
+    <div class="logo-grid">
+      <div class="logo">Adobe</div>
+      <div class="logo">Figma</div>
+      <div class="logo">Notion</div>
+      <div class="logo">Framer</div>
+      <div class="logo">Linear</div>
+    </div>
+  </section>
+
+  <section class="social-proof">
+    <h2>People Are Talking</h2>
+    <div class="tweets">
+      <div class="tweet">“This tool changed my workflow.”</div>
+      <div class="tweet">“Simple, smart and beautifully done.”</div>
+    </div>
+  </section>
+
+  <section class="pricing-section" id="pricing">
+    <h2>Pricing Plans</h2>
+    <div class="toggle">
+      <span>Monthly</span>
+      <label class="switch">
+        <input type="checkbox" id="togglePricing" />
+        <span class="slider"></span>
+      </label>
+      <span>Yearly</span>
+    </div>
+    <div class="pricing-cards">
+      <div class="card">Free</div>
+      <div class="card highlight">Pro</div>
+      <div class="card">Team</div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="logo">Innoverselabs</div>
+    <ul class="footer-nav">
+      <li><a href="#">Privacy</a></li>
+      <li><a href="#">Terms</a></li>
+      <li><a href="#">Contact</a></li>
+    </ul>
+  </footer>
+
+  <script>
+    document.getElementById('togglePricing').addEventListener('change', function () {
+      const plans = document.querySelectorAll('.pricing-cards .card');
+      plans.forEach(plan => {
+        this.checked ? plan.classList.add('yearly') : plan.classList.remove('yearly');
+      });
+    });
+  </script>
 </body>
 </html>
