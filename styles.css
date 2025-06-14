@@ -146,32 +146,34 @@ h1 {
   background-color: #101122;
 }
 
-#toggleVisualizer {
-  margin-bottom: 1rem;
-  padding: 0.5rem 1rem;
-  background: #1e1e33;
-  color: #8faaff;
-  border: 1px solid #4254f5;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-#visualizerContainer {
+.visualizer-wrapper {
   background: #111;
   border-radius: 12px;
   padding: 1rem;
   margin-top: 1rem;
+  box-shadow: 0 0 10px #00000088;
 }
 
-.visualizer-collapsed {
-  display: none;
+.visualizer-controls {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  color: #ccc;
+}
+
+.visualizer-controls label {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.9rem;
 }
 
 canvas {
   background-color: #000;
   border-radius: 6px;
   display: block;
-  margin-bottom: 1rem;
+  margin: 1rem 0;
+  width: 100%;
+  height: auto;
 }
 
 .controls {
@@ -185,4 +187,15 @@ canvas {
   display: flex;
   flex-direction: column;
   font-size: 0.9rem;
+}
+
+button#savePreset, button#loadPreset {
+  margin-top: 1rem;
+  margin-right: 1rem;
+  padding: 0.5rem 1rem;
+  background: #1e1e33;
+  color: #8faaff;
+  border: 1px solid #4254f5;
+  border-radius: 6px;
+  cursor: pointer;
 }

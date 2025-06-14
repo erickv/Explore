@@ -38,27 +38,22 @@ categoryFilter.addEventListener("change", renderProducts);
 sortFilter.addEventListener("change", renderProducts);
 window.onload = renderProducts;
 
-document.getElementById("toggleVisualizer").addEventListener("click", () => {
-  const container = document.getElementById("visualizerContainer");
-  if (container.classList.contains("visualizer-collapsed")) {
-    container.classList.remove("visualizer-collapsed");
-  } else {
-    container.classList.add("visualizer-collapsed");
-  }
-});
-
-// Simple wireframe pulse simulation
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 let t = 0;
+let bgColor = "#000000";
+let lineColor = "#ff0000";
 
 function drawVisualizer() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.strokeStyle = "red";
+  const w = canvas.width, h = canvas.height;
+  ctx.fillStyle = bgColor;
+  ctx.fillRect(0, 0, w, h);
+
+  ctx.strokeStyle = lineColor;
   ctx.beginPath();
   for (let i = 0; i < 360; i += 10) {
-    const x = 300 + Math.cos((i + t) * 0.02) * 100;
-    const y = 150 + Math.sin((i + t) * 0.02) * 100;
+    const x = w / 2 + Math.cos((i + t) * 0.02) * 100;
+    const y = h / 2 + Math.sin((i + t) * 0.02) * 100;
     ctx.lineTo(x, y);
   }
   ctx.stroke();
@@ -66,3 +61,38 @@ function drawVisualizer() {
   requestAnimationFrame(drawVisualizer);
 }
 drawVisualizer();
+
+document.getElementById("bgColor").addEventListener("input", e => {
+  bgColor = e.target.value;
+});
+document.getElementById("lineColor").addEventListener("input", e => {
+  lineColor = e.target.value;
+});
+
+document.getElementById("savePreset").addEventListener("click", () => {
+  const preset = {
+    cc35: document.getElementById("cc35").value,
+    cc36: document.getElementById("cc36").value,
+    cc37: document.getElementById("cc37").value,
+    cc38: document.getElementById("cc38").value,
+    cc39: document.getElementById("cc39").value,
+    cc40: document.getElementById("cc40").value,
+    cc41: document.getElementById("cc41").value,
+    bgColor: bgColor,
+    lineColor: lineColor,
+    shape: document.getElementById("shapeSelect").value
+  };
+  localStorage.setItem("visualizerPreset", JSON.stringify(preset));
+  alert("Preset saved!");
+});
+
+document.getElementById("loadPreset").addEventListener("click", () => {
+  const preset = JSON.parse(localStorage.getItem("visualizerPreset"));
+  if (!preset) return alert("No preset found.");
+  Object.keys(preset).forEach(key => {
+    const el = document.getElementById(key);
+    if (el) el.value = preset[key];
+  });
+  bgColor = preset.bgColor;
+  lineColor = preset.lineColor;
+});
