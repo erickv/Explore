@@ -138,3 +138,39 @@ body {
   cursor: pointer;
   font-size: 14px;
 }
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 40px;
+  background-color: #000;
+  border-bottom: 1px solid #111;
+}
+
+.nav-logo img {
+  height: 40px;
+}
+
+.nav-links {
+  list-style: none;
+  display: flex;
+  gap: 30px;
+}
+
+.nav-links li a {
+  text-decoration: none;
+  color: #ccc;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.nav-links li a:hover {
+  color: #fff;
+}
+
+.hero-logo-large {
+  width: 100px;
+  margin: 0 auto 20px;
+  display: block;
+}
