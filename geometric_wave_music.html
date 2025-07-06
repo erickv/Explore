@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geometric Wave Music Experience</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #000;
+            overflow: hidden;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        #container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+        
+        #controls {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            border-radius: 5px;
+            backdrop-filter: blur(10px);
+        }
+        
+        button {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+        }
+        
+        button:disabled {
+            background: rgba(255, 255, 255, 0.2);
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        input[type="range"] {
+            width: 100px;
+        }
+        
+        label {
+            color: white;
+            font-size: 12px;
+            min-width: 60px;
+        }
+        
+        select {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 5px;
+            border-radius: 3px;
+            min-width: 100px;
+        }
+        
+        select option {
+            background: #333;
+            color: white;
+        }
+        
+        #tempoValue {
+            color: #4ecdc4;
+            font-weight: bold;
+            min-width: 60px;
+        }
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 12px;
+            z-index: 100;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div id="controls">
+            <div class="control-group">
+                <button id="playBtn">Play Music</button>
+                <button id="stopBtn" disabled>Stop</button>
+            </div>
+            <div class="control-group">
+                <label>Volume:</label>
+                <input type="range" id="volumeSlider" min="0" max="1" step="0.1" value="0.5">
+            </div>
+            <div class="control-group">
+                <label>Speed:</label>
+                <input type="range" id="speedSlider" min="0.1" max="2" step="0.1" value="1">
+            </div>
+            <div class="control-group">
+                <label>Complexity:</label>
+                <input type="range" id="complexitySlider" min="1" max="10" step="1" value="5">
+            </div>
+            <div class="control-group">
+                <label>Music Style:</label>
+                <select id="musicStyle">
+                    <option value="ambient">Ambient</option>
+                    <option value="electronic">Electronic</option>
+                    <option value="minimal">Minimal</option>
+                    <option value="cosmic">Cosmic</option>
+                    <option value="jazz">Jazz</option>
+                    <option value="pentatonic">Pentatonic</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label>Tempo:</label>
+                <input type="range" id="tempoSlider" min="60" max="180" step="10" value="120">
+                <span id="tempoValue">120 BPM</span>
+            </div>
+            <div class="control-group">
+                <label>Custom Music:</label>
+                <input type="file" id="audioFile" accept="audio/*">
+                <button id="loadAudio">Load Audio</button>
+            </div>
+            <div class="control-group">
+                <label>Shape Style:</label>
+                <select id="shapeStyle">
+                    <option value="wireframe">Wireframe</option>
+                    <option value="lines">Lines Only</option>
+                    <option value="particles">Particles</option>
+                    <option value="waves">Pure Waves</option>
+                </select>
+            </div>
+        </div>
+        <div id="info">
+            Click Play to start the geometric wave experience
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let scene, camera, renderer, analyser, dataArray;
+        let geometricObjects = [];
+        let waveLines = [];
+        let particleSystem;
+        let isPlaying = false;
+        let animationSpeed = 1;
+        let complexity = 5;
+        let currentTempo = 120;
+        let currentShapeStyle = 'wireframe';
+        let customAudio = null;
+        let audioSource = null;
+        
+        // Audio setup
+        let synth, basssynth, drumsynth, reverb, filter, compressor;
+        let sequence, bassSequence, drumSequence;
+        let currentMusicStyle = 'ambient';
+        
+        // Music scales and patterns
+        const musicStyles = {
+            ambient: {
+                notes: ["C4", "E4", "G4", "B4", "D5", "F4", "A4", "C5"],
+                bassNotes: ["C2", "F2", "G2", "C2"],
+                rhythm: "4n",
+                bassRhythm: "1n",
+                synthType: "triangle",
+                effects: { reverb: 6, filter: 1200 }
+            },
+            electronic: {
+                notes: ["C4", "D4", "F4", "G4", "A4", "C5", "D5", "F5"],
+                bassNotes: ["C2", "C2", "F2", "F2", "G2", "G2", "A2", "A2"],
+                rhythm: "8n",
+                bassRhythm: "4n",
+                synthType: "sawtooth",
+                effects: { reverb: 2, filter: 800 }
+            },
+            minimal: {
+                notes: ["C4", "E4", "G4", "C5"],
+                bassNotes: ["C2", "G2"],
+                rhythm: "2n",
+                bassRhythm: "1n",
+                synthType: "sine",
+                effects: { reverb: 8, filter: 1500 }
+            },
+            cosmic: {
+                notes: ["C4", "D4", "E4", "F#4", "G4", "A4", "B4", "C5", "D5"],
+                bassNotes: ["C2", "D2", "E2", "F#2"],
+                rhythm: "8n.",
+                bassRhythm: "2n",
+                synthType: "triangle",
+                effects: { reverb: 10, filter: 600 }
+            },
+            jazz: {
+                notes: ["C4", "E4", "G4", "B4", "D5", "F#5", "A5", "C6"],
+                bassNotes: ["C2", "E2", "G2", "B2"],
+                rhythm: "4n.",
+                bassRhythm: "2n",
+                synthType: "triangle",
+                effects: { reverb: 4, filter: 1000 }
+            },
+            pentatonic: {
+                notes: ["C4", "D4", "F4", "G4", "A4", "C5", "D5", "F5"],
+                bassNotes: ["C2", "F2", "G2", "C2"],
+                rhythm: "8n",
+                bassRhythm: "4n",
+                synthType: "triangle",
+                effects: { reverb: 5, filter: 900 }
+            }
+        };
+        
+        // Initialize Three.js
+        function initThree() {
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setClearColor(0x000000);
+            document.getElementById('container').appendChild(renderer.domElement);
+            
+            camera.position.z = 50;
+            
+            // Add lighting
+            const ambientLight = new THREE.AmbientLight(0x404040, 0.4);
+            scene.add(ambientLight);
+            
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            directionalLight.position.set(1, 1, 1);
+            scene.add(directionalLight);
+        }
+        
+        // Initialize Tone.js audio
+        function initAudio() {
+            // Create audio effects chain
+            reverb = new Tone.Reverb(4).toDestination();
+            filter = new Tone.Filter(800, "lowpass").connect(reverb);
+            compressor = new Tone.Compressor(-30, 3).connect(filter);
+            
+            // Create synthesizers
+            synth = new Tone.PolySynth(Tone.Synth, {
+                oscillator: {
+                    type: "triangle"
+                },
+                envelope: {
+                    attack: 0.1,
+                    decay: 0.2,
+                    sustain: 0.5,
+                    release: 0.8
+                }
+            }).connect(compressor);
+            
+            // Create bass synth
+            basssynth = new Tone.MonoSynth({
+                oscillator: {
+                    type: "sawtooth"
+                },
+                envelope: {
+                    attack: 0.1,
+                    decay: 0.3,
+                    sustain: 0.4,
+                    release: 1.2
+                }
+            }).connect(compressor);
+            
+            // Create drum synth
+            drumsynth = new Tone.MembraneSynth({
+                pitchDecay: 0.05,
+                octaves: 10,
+                oscillator: {
+                    type: "sine"
+                },
+                envelope: {
+                    attack: 0.001,
+                    decay: 0.4,
+                    sustain: 0.01,
+                    release: 1.4
+                }
+            }).connect(compressor);
+            
+            // Set up audio analysis
+            analyser = new Tone.Analyser("fft", 32);
+            compressor.connect(analyser);
+            
+            // Create initial sequences
+            createSequences();
+        }
+        
+        // Create musical sequences based on current style
+        function createSequences() {
+            // Stop and dispose existing sequences
+            if (sequence) {
+                sequence.stop();
+                sequence.dispose();
+            }
+            if (bassSequence) {
+                bassSequence.stop();
+                bassSequence.dispose();
+            }
+            if (drumSequence) {
+                drumSequence.stop();
+                drumSequence.dispose();
+            }
+            
+            const style = musicStyles[currentMusicStyle];
+            
+            // Update synth oscillator type
+            if (synth) {
+                synth.set({
+                    oscillator: {
+                        type: style.synthType
+                    }
+                });
+            }
+            
+            // Update effects
+            if (reverb && reverb.roomSize) {
+                reverb.roomSize.value = style.effects.reverb;
+            }
+            if (filter && filter.frequency) {
+                filter.frequency.value = style.effects.filter;
+            }
+            
+            // Create melody sequence
+            sequence = new Tone.Sequence((time, note) => {
+                if (synth) {
+                    synth.triggerAttackRelease(note, "8n", time);
+                }
+            }, style.notes, style.rhythm);
+            
+            // Create bass sequence
+            bassSequence = new Tone.Sequence((time, note) => {
+                if (basssynth) {
+                    basssynth.triggerAttackRelease(note, "2n", time);
+                }
+            }, style.bassNotes, style.bassRhythm);
+            
+            // Create drum sequence for electronic style
+            if (currentMusicStyle === 'electronic') {
+                drumSequence = new Tone.Sequence((time, note) => {
+                    if (drumsynth && note) {
+                        drumsynth.triggerAttackRelease(note, "16n", time);
+                    }
+                }, ["C1", null, "C1", null], "4n");
+            }
+        }
+        
+        // Create geometric objects
+        function createGeometricObjects() {
+            // Clear existing objects
+            geometricObjects.forEach(obj => scene.remove(obj));
+            geometricObjects = [];
+            
+            if (particleSystem) {
+                scene.remove(particleSystem);
+                particleSystem = null;
+            }
+            
+            switch (currentShapeStyle) {
+                case 'wireframe':
+                    createWireframeShapes();
+                    break;
+                case 'lines':
+                    createLineShapes();
+                    break;
+                case 'particles':
+                    createParticleSystem();
+                    break;
+                case 'waves':
+                    createWaveShapes();
+                    break;
+            }
+        }
+        
+        function createWireframeShapes() {
+            for (let i = 0; i < complexity; i++) {
+                const geometries = [
+                    new THREE.BoxGeometry(2, 2, 2),
+                    new THREE.SphereGeometry(1, 8, 8),
+                    new THREE.ConeGeometry(1, 2, 6),
+                    new THREE.OctahedronGeometry(1.5),
+                    new THREE.TetrahedronGeometry(1.5)
+                ];
+                
+                const geometry = geometries[Math.floor(Math.random() * geometries.length)];
+                const material = new THREE.MeshBasicMaterial({
+                    color: new THREE.Color().setHSL(Math.random(), 0.8, 0.6),
+                    wireframe: true,
+                    transparent: true,
+                    opacity: 0.7
+                });
+                
+                const mesh = new THREE.Mesh(geometry, material);
+                positionObject(mesh, i);
+                scene.add(mesh);
+                geometricObjects.push(mesh);
+            }
+        }
+        
+        function createLineShapes() {
+            for (let i = 0; i < complexity; i++) {
+                const points = [];
+                const sides = 3 + Math.floor(Math.random() * 5); // 3-8 sides
+                
+                for (let j = 0; j <= sides; j++) {
+                    const angle = (j / sides) * Math.PI * 2;
+                    const radius = 1 + Math.random() * 2;
+                    points.push(new THREE.Vector3(
+                        Math.cos(angle) * radius,
+                        Math.sin(angle) * radius,
+                        0
+                    ));
+                }
+                
+                const geometry = new THREE.BufferGeometry().setFromPoints(points);
+                const material = new THREE.LineBasicMaterial({
+                    color: new THREE.Color().setHSL(i / complexity, 1, 0.6),
+                    transparent: true,
+                    opacity: 0.8
+                });
+                
+                const line = new THREE.Line(geometry, material);
+                positionObject(line, i);
+                scene.add(line);
+                geometricObjects.push(line);
+            }
+        }
+        
+        function createParticleSystem() {
+            const particleCount = complexity * 200;
+            const positions = new Float32Array(particleCount * 3);
+            const colors = new Float32Array(particleCount * 3);
+            
+            for (let i = 0; i < particleCount; i++) {
+                const i3 = i * 3;
+                positions[i3] = (Math.random() - 0.5) * 50;
+                positions[i3 + 1] = (Math.random() - 0.5) * 50;
+                positions[i3 + 2] = (Math.random() - 0.5) * 50;
+                
+                const color = new THREE.Color().setHSL(Math.random(), 0.8, 0.6);
+                colors[i3] = color.r;
+                colors[i3 + 1] = color.g;
+                colors[i3 + 2] = color.b;
+            }
+            
+            const geometry = new THREE.BufferGeometry();
+            geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+            
+            const material = new THREE.PointsMaterial({
+                size: 0.5,
+                vertexColors: true,
+                transparent: true,
+                opacity: 0.8
+            });
+            
+            particleSystem = new THREE.Points(geometry, material);
+            scene.add(particleSystem);
+        }
+        
+        function createWaveShapes() {
+            // Create more complex wave patterns
+            for (let i = 0; i < complexity * 2; i++) {
+                const points = [];
+                const waveLength = 20 + Math.random() * 20;
+                
+                for (let j = 0; j < 100; j++) {
+                    const x = (j - 50) * 0.5;
+                    const y = Math.sin(j * 0.1) * 2;
+                    const z = (i - complexity) * 3;
+                    points.push(new THREE.Vector3(x, y, z));
+                }
+                
+                const geometry = new THREE.BufferGeometry().setFromPoints(points);
+                const material = new THREE.LineBasicMaterial({
+                    color: new THREE.Color().setHSL(i / (complexity * 2), 1, 0.6),
+                    transparent: true,
+                    opacity: 0.6
+                });
+                
+                const line = new THREE.Line(geometry, material);
+                line.userData = {
+                    phase: i * Math.PI / 8,
+                    frequency: 0.05 + i * 0.01,
+                    amplitude: 1 + Math.random() * 3
+                };
+                
+                scene.add(line);
+                geometricObjects.push(line);
+            }
+        }
+        
+        function positionObject(obj, index) {
+            const angle = (index / complexity) * Math.PI * 2;
+            const radius = 15 + Math.random() * 10;
+            obj.position.x = Math.cos(angle) * radius;
+            obj.position.y = Math.sin(angle) * radius;
+            obj.position.z = (Math.random() - 0.5) * 20;
+            
+            obj.userData = {
+                originalPosition: obj.position.clone(),
+                phase: Math.random() * Math.PI * 2,
+                frequency: 0.5 + Math.random() * 1.5
+            };
+        }
+        
+        // Load custom audio file
+        function loadCustomAudio(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const audioContext = Tone.context.rawContext;
+                audioContext.decodeAudioData(e.target.result).then(buffer => {
+                    customAudio = buffer;
+                    document.getElementById('info').textContent = `Custom audio loaded: ${file.name}`;
+                }).catch(error => {
+                    console.error('Error loading audio:', error);
+                    document.getElementById('info').textContent = 'Error loading audio file';
+                });
+            };
+            reader.readAsArrayBuffer(file);
+        }
+        
+        // Play custom audio
+        function playCustomAudio() {
+            if (customAudio) {
+                // Stop synthesized music
+                if (sequence) sequence.stop();
+                if (bassSequence) bassSequence.stop();
+                if (drumSequence) drumSequence.stop();
+                
+                // Create audio source for custom file
+                audioSource = new Tone.Player(customAudio).toDestination();
+                audioSource.connect(analyser);
+                audioSource.start();
+                
+                return true;
+            }
+            return false;
+        }
+        function createWaveLines() {
+            waveLines = [];
+            
+            for (let i = 0; i < 8; i++) {
+                const points = [];
+                for (let j = 0; j < 100; j++) {
+                    points.push(new THREE.Vector3(
+                        (j - 50) * 0.8,
+                        0,
+                        (i - 4) * 5
+                    ));
+                }
+                
+                const geometry = new THREE.BufferGeometry().setFromPoints(points);
+                const material = new THREE.LineBasicMaterial({
+                    color: new THREE.Color().setHSL(i / 8, 1, 0.5),
+                    transparent: true,
+                    opacity: 0.7
+                });
+                
+                const line = new THREE.Line(geometry, material);
+                line.userData = {
+                    phase: i * Math.PI / 4,
+                    frequency: 0.1 + i * 0.02
+                };
+                
+                scene.add(line);
+                waveLines.push(line);
+            }
+        }
+        
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            if (isPlaying && analyser) {
+                dataArray = analyser.getValue();
+                
+                // Calculate audio energy
+                let totalEnergy = 0;
+                for (let i = 0; i < dataArray.length; i++) {
+                    totalEnergy += Math.abs(dataArray[i]);
+                }
+                const avgEnergy = totalEnergy / dataArray.length;
+                const energyScale = Math.max(0.1, avgEnergy * 0.01);
+                
+                // Update geometric objects based on style
+                if (currentShapeStyle === 'particles' && particleSystem) {
+                    const positions = particleSystem.geometry.attributes.position.array;
+                    for (let i = 0; i < positions.length; i += 3) {
+                        const freqIndex = Math.floor((i / positions.length) * dataArray.length);
+                        const freqValue = Math.abs(dataArray[freqIndex]) * 0.1;
+                        positions[i + 1] += Math.sin(time + i) * 0.1 * (1 + freqValue);
+                    }
+                    particleSystem.geometry.attributes.position.needsUpdate = true;
+                } else {
+                    // Update other geometric objects
+                    geometricObjects.forEach((obj, index) => {
+                        const userData = obj.userData;
+                        if (!userData) return;
+                        
+                        // Wave motion
+                        const wave = Math.sin(time * userData.frequency + userData.phase) * 3;
+                        
+                        if (currentShapeStyle === 'waves') {
+                            // Update wave line points
+                            if (obj.geometry && obj.geometry.attributes.position) {
+                                const positions = obj.geometry.attributes.position.array;
+                                for (let i = 0; i < positions.length; i += 3) {
+                                    const x = positions[i];
+                                    const freqIndex = Math.floor(((i / 3) / (positions.length / 3)) * dataArray.length);
+                                    const freqValue = Math.abs(dataArray[freqIndex]) * 0.1;
+                                    
+                                    const wavePattern = Math.sin(x * userData.frequency + time + userData.phase) * userData.amplitude;
+                                    const audioWave = Math.sin(x * 0.1 + time * 2) * freqValue * 5;
+                                    positions[i + 1] = wavePattern + audioWave;
+                                }
+                                obj.geometry.attributes.position.needsUpdate = true;
+                            }
+                        } else {
+                            // Standard geometric object updates
+                            if (userData.originalPosition) {
+                                obj.position.y = userData.originalPosition.y + wave;
+                            }
+                            
+                            // Rotation based on audio
+                            obj.rotation.x += 0.01 * animationSpeed * (1 + energyScale);
+                            obj.rotation.y += 0.02 * animationSpeed * (1 + energyScale);
+                            
+                            // Scale based on frequency data
+                            const freqIndex = Math.floor((index / geometricObjects.length) * dataArray.length);
+                            const freqValue = Math.abs(dataArray[freqIndex]) * 0.1;
+                            const scale = 1 + freqValue;
+                            if (obj.scale) obj.scale.setScalar(scale);
+                        }
+                        
+                        // Color shift based on audio
+                        const hue = (time * 0.1 + index * 0.1) % 1;
+                        if (obj.material && obj.material.color) {
+                            obj.material.color.setHSL(hue, 0.8, 0.6 + energyScale * 0.4);
+                        }
+                    });
+                }
+                
+                // Update wave lines
+                waveLines.forEach((line, lineIndex) => {
+                    const time = Date.now() * 0.001 * animationSpeed;
+                    const userData = line.userData;
+                    const positions = line.geometry.attributes.position.array;
+                    
+                    for (let i = 0; i < positions.length; i += 3) {
+                        const x = positions[i];
+                        const freqIndex = Math.floor(((i / 3) / 100) * dataArray.length);
+                        const freqValue = Math.abs(dataArray[freqIndex]) * 0.1;
+                        
+                        // Create wave pattern
+                        const wave1 = Math.sin(x * 0.1 + time * userData.frequency + userData.phase) * 5;
+                        const wave2 = Math.sin(x * 0.05 + time * 0.8) * 2;
+                        positions[i + 1] = wave1 + wave2 + freqValue * 10;
+                    }
+                    
+                    line.geometry.attributes.position.needsUpdate = true;
+                    
+                    // Update line color
+                    const hue = (time * 0.1 + lineIndex * 0.125) % 1;
+                    line.material.color.setHSL(hue, 1, 0.5 + energyScale * 0.5);
+                });
+            }
+            
+            renderer.render(scene, camera);
+        }
+        
+        // Event listeners
+        document.getElementById('playBtn').addEventListener('click', async () => {
+            if (Tone.context.state !== 'running') {
+                await Tone.start();
+            }
+            
+            Tone.Transport.bpm.value = currentTempo;
+            Tone.Transport.start();
+            sequence.start();
+            bassSequence.start();
+            if (drumSequence) drumSequence.start();
+            isPlaying = true;
+            
+            document.getElementById('playBtn').disabled = true;
+            document.getElementById('stopBtn').disabled = false;
+            document.getElementById('info').textContent = `Playing ${currentMusicStyle} style at ${currentTempo} BPM`;
+        });
+        
+        document.getElementById('stopBtn').addEventListener('click', () => {
+            Tone.Transport.stop();
+            sequence.stop();
+            bassSequence.stop();
+            if (drumSequence) drumSequence.stop();
+            isPlaying = false;
+            
+            document.getElementById('playBtn').disabled = false;
+            document.getElementById('stopBtn').disabled = true;
+            document.getElementById('info').textContent = 'Click Play to start the geometric wave experience';
+        });
+        
+        document.getElementById('volumeSlider').addEventListener('input', (e) => {
+            Tone.Destination.volume.value = Tone.gainToDb(e.target.value);
+        });
+        
+        document.getElementById('speedSlider').addEventListener('input', (e) => {
+            animationSpeed = parseFloat(e.target.value);
+        });
+        
+        document.getElementById('complexitySlider').addEventListener('input', (e) => {
+            complexity = parseInt(e.target.value);
+            // Clear existing objects
+            geometricObjects.forEach(obj => scene.remove(obj));
+            // Create new objects with new complexity
+            createGeometricObjects();
+        });
+        
+        document.getElementById('musicStyle').addEventListener('change', (e) => {
+            currentMusicStyle = e.target.value;
+            const wasPlaying = isPlaying;
+            
+            // Stop current music
+            if (isPlaying) {
+                Tone.Transport.stop();
+                if (sequence) sequence.stop();
+                if (bassSequence) bassSequence.stop();
+                if (drumSequence) drumSequence.stop();
+            }
+            
+            // Recreate sequences with new style
+            createSequences();
+            
+            // Restart if it was playing
+            if (wasPlaying) {
+                Tone.Transport.start();
+                if (sequence) sequence.start();
+                if (bassSequence) bassSequence.start();
+                if (drumSequence) drumSequence.start();
+                document.getElementById('info').textContent = `Playing ${currentMusicStyle} style at ${currentTempo} BPM`;
+            }
+        });
+        
+        document.getElementById('tempoSlider').addEventListener('input', (e) => {
+            currentTempo = parseInt(e.target.value);
+            document.getElementById('tempoValue').textContent = currentTempo + ' BPM';
+            if (Tone.Transport) {
+                Tone.Transport.bpm.value = currentTempo;
+            }
+            
+            if (isPlaying) {
+                document.getElementById('info').textContent = `Playing ${currentMusicStyle} style at ${currentTempo} BPM`;
+            }
+        });
+        
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+        
+        // Initialize everything
+        initThree();
+        initAudio();
+        createGeometricObjects();
+        createWaveLines();
+        animate();
+    </script>
+</body>
+</html>
