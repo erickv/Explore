@@ -6,7 +6,6 @@
   <title>Geometric Wave Music Experience</title>
   <meta name="description" content="Explore a 3D generative music and wave visualization experience using WebGL and synths." />
   <meta property="og:title" content="Geometric Wave Music Experience" />
-  <meta property="og:description" content="Interactive audio-visual experience built with Three.js and Tone.js." />
   <meta property="og:image" content="thumbnail.jpg" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
@@ -146,6 +145,7 @@
         <label for="audioFile">Custom Music:</label>
         <input type="file" id="audioFile" accept="audio/*" title="Upload an audio file to visualize">
         <button id="loadAudio">Load Audio</button>
+        <button id="playCustomAudio" disabled>Play Uploaded</button>
       </div>
       <div class="control-group">
         <label for="shapeStyle">Shape Style:</label>
@@ -160,7 +160,49 @@
     <div id="info">Click Play to start the geometric wave experience</div>
   </div>
 
-  <!-- Main JS logic -->
-  <script src="./geometric_wave_logic.js"></script>
+  <script>
+    // Ensure Tone.js context starts on user interaction
+    document.getElementById("playBtn").addEventListener("click", async () => {
+      if (Tone.context.state !== "running") await Tone.start();
+    });
+
+    // Load and decode uploaded audio
+    let customAudioBuffer = null;
+    document.getElementById("loadAudio").addEventListener("click", () => {
+      const fileInput = document.getElementById("audioFile");
+      const file = fileInput.files[0];
+      if (!file) {
+        document.getElementById("info").textContent = "No file selected.";
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const audioContext = Tone.context.rawContext;
+        audioContext.decodeAudioData(e.target.result)
+          .then(buffer => {
+            customAudioBuffer = buffer;
+            document.getElementById("info").textContent = `Loaded: ${file.name}`;
+            document.getElementById("playCustomAudio").disabled = false;
+          })
+          .catch(err => {
+            console.error("Error decoding file", err);
+            document.getElementById("info").textContent = "Could not decode audio.";
+          });
+      };
+      reader.readAsArrayBuffer(file);
+    });
+
+    // Play uploaded custom audio
+    document.getElementById("playCustomAudio").addEventListener("click", async () => {
+      if (!customAudioBuffer) return;
+      if (Tone.context.state !== "running") await Tone.start();
+
+      const player = new Tone.Player(customAudioBuffer).toDestination();
+      player.autostart = true;
+
+      document.getElementById("info").textContent = "Playing uploaded audio...";
+    });
+  </script>
 </body>
 </html>
