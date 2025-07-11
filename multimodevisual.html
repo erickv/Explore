@@ -13,7 +13,15 @@
       background: rgba(0, 0, 0, 0.7);
       padding: 10px;
       border-radius: 8px;
+    }
+    #dragHandle {
+      background: #111;
+      padding: 4px 8px;
+      margin-bottom: 10px;
       cursor: move;
+      font-weight: bold;
+      border-radius: 4px;
+      text-align: center;
     }
     select, label, input, button {
       display: block;
@@ -28,6 +36,8 @@
 </head>
 <body>
   <div id="ui">
+    <div id="dragHandle">≡ Drag Panel</div>
+
     <label for="modeSelect">Mode</label>
     <select id="modeSelect">
       <option value="dotwave">Dot Wave</option>
@@ -61,7 +71,7 @@
     function setup() {
       createCanvas(windowWidth, windowHeight);
       noStroke();
-      dragElement(document.getElementById("ui"));
+      dragElement(document.getElementById("ui"), document.getElementById("dragHandle"));
     }
 
     function draw() {
@@ -102,10 +112,9 @@
       resizeCanvas(windowWidth, windowHeight);
     }
 
-    // Drag UI Panel
-    function dragElement(elmnt) {
+    function dragElement(elmnt, handle) {
       let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
-      elmnt.onmousedown = dragMouseDown;
+      handle.onmousedown = dragMouseDown;
 
       function dragMouseDown(e) {
         e.preventDefault();
