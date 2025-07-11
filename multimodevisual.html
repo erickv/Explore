@@ -13,6 +13,7 @@
       background: rgba(0, 0, 0, 0.7);
       padding: 10px;
       border-radius: 8px;
+      cursor: move;
     }
     select, label, input, button {
       display: block;
@@ -44,6 +45,12 @@
     <label>Dot Size</label>
     <input type="range" id="dotSize" min="1" max="8" value="3"/>
 
+    <label>Dot Color</label>
+    <input type="color" id="dotColor" value="#ffffff"/>
+
+    <label>Background</label>
+    <input type="color" id="bgColor" value="#000000"/>
+
     <button onclick="saveCanvas('dot_visual', 'png')">Export PNG</button>
   </div>
 
@@ -54,10 +61,12 @@
     function setup() {
       createCanvas(windowWidth, windowHeight);
       noStroke();
+      dragElement(document.getElementById("ui"));
     }
 
     function draw() {
-      background(0);
+      let bg = document.getElementById("bgColor").value;
+      background(bg);
       if (mode === 'dotwave') drawDotWave();
     }
 
@@ -66,19 +75,20 @@
       let amp = parseFloat(document.getElementById('amplitude').value);
       let freq = parseFloat(document.getElementById('frequency').value);
       let dotSize = parseFloat(document.getElementById('dotSize').value);
+      let dotColor = document.getElementById('dotColor').value;
 
       cols = grid;
       rows = grid;
       let spacingX = width / cols;
       let spacingY = height / rows;
 
+      fill(dotColor);
       for (let y = 0; y < rows; y++) {
         for (let x = 0; x < cols; x++) {
-          let offsetX = sin((x + frameCount * 0.02) * freq) * amp;
-          let offsetY = cos((y + frameCount * 0.02) * freq) * amp;
-          let px = x * spacingX + offsetX;
-          let py = y * spacingY + offsetY;
-          fill(255);
+          let time = millis() * 0.001;
+          let offset = sin((x + time * 40) * freq) + cos((y + time * 40) * freq);
+          let px = x * spacingX + offset * amp;
+          let py = y * spacingY + offset * amp * 0.5;
           circle(px, py, dotSize);
         }
       }
@@ -90,6 +100,35 @@
 
     function windowResized() {
       resizeCanvas(windowWidth, windowHeight);
+    }
+
+    // Drag UI Panel
+    function dragElement(elmnt) {
+      let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+      elmnt.onmousedown = dragMouseDown;
+
+      function dragMouseDown(e) {
+        e.preventDefault();
+        pos3 = e.clientX;
+        pos4 = e.clientY;
+        document.onmouseup = closeDragElement;
+        document.onmousemove = elementDrag;
+      }
+
+      function elementDrag(e) {
+        e.preventDefault();
+        pos1 = pos3 - e.clientX;
+        pos2 = pos4 - e.clientY;
+        pos3 = e.clientX;
+        pos4 = e.clientY;
+        elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+        elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+      }
+
+      function closeDragElement() {
+        document.onmouseup = null;
+        document.onmousemove = null;
+      }
     }
   </script>
 </body>
