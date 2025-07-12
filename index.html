@@ -5,9 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>InnoverseLABS</title>
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
-      font-family: Arial, sans-serif;
+      font-family: system-ui, sans-serif;
       background: #0b0e14;
       color: white;
     }
@@ -18,6 +22,7 @@
       align-items: center;
       padding: 12px 24px;
       background: #000;
+      flex-wrap: wrap;
     }
 
     .nav-logo img {
@@ -28,17 +33,20 @@
       display: flex;
       gap: 20px;
       list-style: none;
+      margin: 0;
+      padding: 0;
     }
 
     .nav-links li a {
       color: #fff;
       text-decoration: none;
       font-weight: 500;
+      font-size: 14px;
     }
 
     .hero-section {
       text-align: center;
-      padding: 80px 20px 40px;
+      padding: 60px 20px 40px;
       background: #000;
     }
 
@@ -48,22 +56,25 @@
     }
 
     .hero-section h1 {
-      font-size: 2rem;
+      font-size: 2.2rem;
       font-weight: bold;
-      margin: 0 0 12px;
+      margin-bottom: 12px;
+      line-height: 1.3;
     }
 
     .hero-section p {
-      max-width: 500px;
+      max-width: 560px;
       margin: 0 auto 24px;
-      font-size: 14px;
+      font-size: 15px;
       color: #aaa;
+      line-height: 1.6;
     }
 
     .cta-row {
       display: flex;
       justify-content: center;
       gap: 8px;
+      flex-wrap: wrap;
     }
 
     .cta-row input {
@@ -71,6 +82,7 @@
       border-radius: 4px;
       border: none;
       width: 240px;
+      max-width: 100%;
     }
 
     .cta-button.green {
@@ -81,6 +93,7 @@
       font-weight: bold;
       cursor: pointer;
       border-radius: 4px;
+      min-width: 140px;
     }
 
     .project-section {
@@ -93,11 +106,13 @@
       justify-content: space-between;
       align-items: center;
       margin-bottom: 24px;
+      flex-wrap: wrap;
     }
 
     .section-header h2 {
       font-size: 18px;
       font-weight: bold;
+      margin: 0 0 12px 0;
     }
 
     .view-all {
@@ -108,7 +123,7 @@
 
     .project-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
       gap: 20px;
     }
 
@@ -119,6 +134,8 @@
       text-decoration: none;
       color: white;
       transition: transform 0.2s ease;
+      display: flex;
+      flex-direction: column;
     }
 
     .project-card:hover {
@@ -130,6 +147,7 @@
       height: 162px;
       background: #1c1c1c;
       overflow: hidden;
+      flex-shrink: 0;
     }
 
     .project-card .thumbnail img {
@@ -165,18 +183,26 @@
       cursor: pointer;
     }
 
-    @media (max-width: 768px) {
+    @media (max-width: 500px) {
+      .hero-section h1 {
+        font-size: 1.5rem;
+      }
+
+      .nav-links {
+        flex-direction: column;
+        width: 100%;
+        align-items: flex-end;
+        gap: 12px;
+        margin-top: 8px;
+      }
+
       .cta-row {
         flex-direction: column;
         align-items: center;
       }
 
-      .cta-row input {
+      .cta-button.green {
         width: 100%;
-      }
-
-      .project-grid {
-        grid-template-columns: 1fr;
       }
     }
   </style>
@@ -194,7 +220,7 @@
       <li><a href="#">About</a></li>
     </ul>
   </nav>
-  
+
   <header class="hero-section">
     <div class="logo-container">
       <img src="./logo.png" alt="InnoverseLABS logo" class="hero-logo-large">
@@ -206,13 +232,13 @@
       <button class="cta-button green">Join Innovation</button>
     </div>
   </header>
-  
+
   <main class="project-section">
     <div class="section-header">
       <h2>Featured Projects</h2>
       <a href="#" class="view-all">VIEW ALL PROJECTS →</a>
     </div>
-    
+
     <div class="project-grid">
       <a href="visualizer.html" class="project-card">
         <div class="thumbnail">
@@ -246,4 +272,26 @@
         <div class="project-meta">👁 642 • 💬 0 • ⭐ 12</div>
       </a>
 
-      <a href="project5.h
+      <a href="project5.html" class="project-card">
+        <div class="thumbnail">
+          <img src="./images/project5-thumb.jpg" alt="Project 5" loading="lazy">
+        </div>
+        <div class="project-title">Project 5</div>
+        <div class="project-meta">👁 858 • 💬 0 • ⭐ 20</div>
+      </a>
+
+      <a href="project6.html" class="project-card">
+        <div class="thumbnail">
+          <img src="./images/project6-thumb.jpg" alt="Project 6" loading="lazy">
+        </div>
+        <div class="project-title">Project 6</div>
+        <div class="project-meta">👁 1097 • 💬 2 • ⭐ 66</div>
+      </a>
+    </div>
+
+    <div class="pagination">
+      <button class="next-button">Next →</button>
+    </div>
+  </main>
+</body>
+</html>
