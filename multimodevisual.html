@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Generative Dot Playground</title>
+  <title>Multimode Visual Playground</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
   <style>
     body { margin: 0; overflow: hidden; background: #000; color: white; font-family: sans-serif; }
@@ -47,34 +47,38 @@
     <label for="modeSelect">Mode</label>
     <select id="modeSelect">
       <option value="dotwave">Dot Wave</option>
+      <option value="halftone">Halftone Image</option>
     </select>
 
-    <label>Grid Size</label>
-    <input type="range" id="gridSize" min="10" max="80" value="40"/>
+    <div id="controls-dotwave">
+      <label>Grid Size</label>
+      <input type="range" id="gridSize" min="10" max="80" value="40"/>
+      <label>Amplitude</label>
+      <input type="range" id="amplitude" min="1" max="100" value="40"/>
+      <label>Frequency</label>
+      <input type="range" id="frequency" min="0.01" max="0.1" step="0.005" value="0.03"/>
+      <label>Dot Size</label>
+      <input type="range" id="dotSize" min="1" max="8" value="3"/>
+      <label>Dot Color</label>
+      <input type="color" id="dotColor" value="#ffffff"/>
+      <label>Background</label>
+      <input type="color" id="bgColor" value="#000000"/>
+      <button onclick="generateSurprise()">🎲 Surprise Me</button>
+      <p id="presetLabel">Preset: —</p>
+    </div>
 
-    <label>Amplitude</label>
-    <input type="range" id="amplitude" min="1" max="100" value="40"/>
-
-    <label>Frequency</label>
-    <input type="range" id="frequency" min="0.01" max="0.1" step="0.005" value="0.03"/>
-
-    <label>Dot Size</label>
-    <input type="range" id="dotSize" min="1" max="8" value="3"/>
-
-    <label>Dot Color</label>
-    <input type="color" id="dotColor" value="#ffffff"/>
-
-    <label>Background</label>
-    <input type="color" id="bgColor" value="#000000"/>
-
-    <button onclick="generateSurprise()">🎲 Surprise Me</button>
-    <p id="presetLabel">Preset: —</p>
+    <div id="controls-halftone" style="display:none;">
+      <label>Upload Image</label>
+      <input type="file" id="imageInput" accept="image/*">
+      <label>Dot Size</label>
+      <input type="range" id="halftoneDotSize" min="2" max="12" value="4" />
+    </div>
 
     <button onclick="saveCanvas('dot_visual', 'png')">Export PNG</button>
   </div>
 
   <script>
-    let cols, rows;
+    let cols, rows, img;
     let mode = 'dotwave';
 
     function setup() {
@@ -84,12 +88,14 @@
     }
 
     function draw() {
-      let bg = document.getElementById("bgColor").value;
-      background(bg);
+      clear();
       if (mode === 'dotwave') drawDotWave();
+      if (mode === 'halftone') drawHalftone();
     }
 
     function drawDotWave() {
+      let bg = document.getElementById("bgColor").value;
+      background(bg);
       let grid = parseInt(document.getElementById('gridSize').value);
       let amp = parseFloat(document.getElementById('amplitude').value);
       let freq = parseFloat(document.getElementById('frequency').value);
@@ -113,6 +119,27 @@
       }
     }
 
+    function drawHalftone() {
+      background(0);
+      if (!img) return;
+
+      let d = parseInt(document.getElementById("halftoneDotSize").value);
+      img.loadPixels();
+
+      for (let y = 0; y < img.height; y += d) {
+        for (let x = 0; x < img.width; x += d) {
+          let index = (x + y * img.width) * 4;
+          let r = img.pixels[index];
+          let g = img.pixels[index + 1];
+          let b = img.pixels[index + 2];
+          let brightness = (r + g + b) / 3;
+          let radius = map(255 - brightness, 0, 255, 0, d);
+          fill(r, g, b);
+          circle(x * (width / img.width), y * (height / img.height), radius);
+        }
+      }
+    }
+
     function generateSurprise() {
       const presets = [
         { name: "Neon Pulse", gridSize: 20, amplitude: 20, frequency: 0.04, dotSize: 2, dotColor: '#FF0077', bgColor: '#000000' },
@@ -123,7 +150,6 @@
       ];
 
       const random = presets[Math.floor(Math.random() * presets.length)];
-
       document.getElementById('gridSize').value = random.gridSize;
       document.getElementById('amplitude').value = random.amplitude;
       document.getElementById('frequency').value = random.frequency;
@@ -135,6 +161,22 @@
 
     document.getElementById('modeSelect').addEventListener('change', (e) => {
       mode = e.target.value;
+      document.getElementById('controls-dotwave').style.display = mode === 'dotwave' ? 'block' : 'none';
+      document.getElementById('controls-halftone').style.display = mode === 'halftone' ? 'block' : 'none';
+    });
+
+    document.getElementById('imageInput').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+          loadImage(evt.target.result, loaded => {
+            img = loaded;
+            img.resize(100, 100);
+          });
+        };
+        reader.readAsDataURL(file);
+      }
     });
 
     function windowResized() {
