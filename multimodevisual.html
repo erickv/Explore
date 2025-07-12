@@ -32,6 +32,12 @@
       margin-top: 10px;
       padding: 5px 10px;
     }
+    #presetLabel {
+      font-style: italic;
+      margin-top: 6px;
+      margin-bottom: 10px;
+      font-size: 13px;
+    }
   </style>
 </head>
 <body>
@@ -60,6 +66,9 @@
 
     <label>Background</label>
     <input type="color" id="bgColor" value="#000000"/>
+
+    <button onclick="generateSurprise()">🎲 Surprise Me</button>
+    <p id="presetLabel">Preset: —</p>
 
     <button onclick="saveCanvas('dot_visual', 'png')">Export PNG</button>
   </div>
@@ -102,6 +111,26 @@
           circle(px, py, dotSize);
         }
       }
+    }
+
+    function generateSurprise() {
+      const presets = [
+        { name: "Neon Pulse", gridSize: 20, amplitude: 20, frequency: 0.04, dotSize: 2, dotColor: '#FF0077', bgColor: '#000000' },
+        { name: "Chill Matrix", gridSize: 60, amplitude: 10, frequency: 0.02, dotSize: 3, dotColor: '#00FFFF', bgColor: '#111111' },
+        { name: "Deep Warp", gridSize: 30, amplitude: 80, frequency: 0.08, dotSize: 4, dotColor: '#FFFFFF', bgColor: '#000000' },
+        { name: "Gold Spark", gridSize: 50, amplitude: 30, frequency: 0.05, dotSize: 1, dotColor: '#FFD700', bgColor: '#222222' },
+        { name: "Alien Grid", gridSize: 40, amplitude: 60, frequency: 0.06, dotSize: 6, dotColor: '#00FF88', bgColor: '#001f1f' },
+      ];
+
+      const random = presets[Math.floor(Math.random() * presets.length)];
+
+      document.getElementById('gridSize').value = random.gridSize;
+      document.getElementById('amplitude').value = random.amplitude;
+      document.getElementById('frequency').value = random.frequency;
+      document.getElementById('dotSize').value = random.dotSize;
+      document.getElementById('dotColor').value = random.dotColor;
+      document.getElementById('bgColor').value = random.bgColor;
+      document.getElementById('presetLabel').innerText = `Preset: ${random.name}`;
     }
 
     document.getElementById('modeSelect').addEventListener('change', (e) => {
