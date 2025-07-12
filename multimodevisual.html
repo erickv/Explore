@@ -38,6 +38,19 @@
       margin-bottom: 10px;
       font-size: 13px;
     }
+    .demo-images {
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      display: flex;
+      gap: 12px;
+    }
+    .demo-images img {
+      border: 1px solid #444;
+      border-radius: 4px;
+      width: 80px;
+      height: auto;
+    }
   </style>
 </head>
 <body>
@@ -71,10 +84,18 @@
       <label>Upload Image</label>
       <input type="file" id="imageInput" accept="image/*">
       <label>Dot Size</label>
-      <input type="range" id="halftoneDotSize" min="2" max="12" value="4" />
+      <input type="range" id="halftoneDotSize" min="1" max="12" value="4" />
+      <label>Dot Spacing</label>
+      <input type="range" id="halftoneSpacing" min="2" max="20" value="5" />
     </div>
 
     <button onclick="saveCanvas('dot_visual', 'png')">Export PNG</button>
+  </div>
+
+  <div class="demo-images">
+    <img src="./images/thumb-2.jpeg" alt="Mes de la Hispanidad poster" />
+    <img src="./images/thumb.jpeg" alt="Skechers Social Media Takeover visual" />
+    <img src="./images/IMG_1875.png" alt="Diego G Works logo" />
   </div>
 
   <script>
@@ -123,17 +144,18 @@
       background(0);
       if (!img) return;
 
-      let d = parseInt(document.getElementById("halftoneDotSize").value);
-      img.loadPixels();
+      let dotSize = parseInt(document.getElementById("halftoneDotSize").value);
+      let spacing = parseInt(document.getElementById("halftoneSpacing").value);
 
-      for (let y = 0; y < img.height; y += d) {
-        for (let x = 0; x < img.width; x += d) {
-          let index = (x + y * img.width) * 4;
-          let r = img.pixels[index];
-          let g = img.pixels[index + 1];
-          let b = img.pixels[index + 2];
+      img.loadPixels();
+      for (let y = 0; y < img.height; y += spacing) {
+        for (let x = 0; x < img.width; x += spacing) {
+          let i = (x + y * img.width) * 4;
+          let r = img.pixels[i];
+          let g = img.pixels[i + 1];
+          let b = img.pixels[i + 2];
           let brightness = (r + g + b) / 3;
-          let radius = map(255 - brightness, 0, 255, 0, d);
+          let radius = map(255 - brightness, 0, 255, 0, dotSize);
           fill(r, g, b);
           circle(x * (width / img.width), y * (height / img.height), radius);
         }
@@ -172,7 +194,7 @@
         reader.onload = function(evt) {
           loadImage(evt.target.result, loaded => {
             img = loaded;
-            img.resize(100, 100);
+            img.resize(200, 0); // higher resolution for clarity
           });
         };
         reader.readAsDataURL(file);
