@@ -21,7 +21,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 2rem 2rem 1rem 2rem; /* top space added */
+      padding: 2rem;
       position: relative;
     }
 
@@ -44,10 +44,16 @@
       position: absolute;
       left: 50%;
       transform: translateX(-50%);
+      top: 120px; /* Add space from top of page */
     }
 
     .logo img {
-      height: 80px; /* Increased from 50px to 80px */
+      height: 80px;
+    }
+
+    /* Push the navbar down so it's not covered by the logo */
+    header {
+      padding-top: 160px;
     }
 
     .gallery {
