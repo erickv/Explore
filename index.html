@@ -4,7 +4,182 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>InnoverseLABS</title>
-  <link rel="stylesheet" href="./styles.css" />
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #0b0e14;
+      color: white;
+    }
+
+    nav.navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 24px;
+      background: #000;
+    }
+
+    .nav-logo img {
+      height: 32px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 20px;
+      list-style: none;
+    }
+
+    .nav-links li a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .hero-section {
+      text-align: center;
+      padding: 80px 20px 40px;
+      background: #000;
+    }
+
+    .hero-logo-large {
+      width: 64px;
+      margin-bottom: 20px;
+    }
+
+    .hero-section h1 {
+      font-size: 2rem;
+      font-weight: bold;
+      margin: 0 0 12px;
+    }
+
+    .hero-section p {
+      max-width: 500px;
+      margin: 0 auto 24px;
+      font-size: 14px;
+      color: #aaa;
+    }
+
+    .cta-row {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .cta-row input {
+      padding: 10px;
+      border-radius: 4px;
+      border: none;
+      width: 240px;
+    }
+
+    .cta-button.green {
+      background: #00d26a;
+      color: #000;
+      border: none;
+      padding: 10px 14px;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+
+    .project-section {
+      padding: 40px 24px;
+      background: #0b0e14;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .section-header h2 {
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .view-all {
+      font-size: 13px;
+      text-decoration: none;
+      color: #36c2f1;
+    }
+
+    .project-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 20px;
+    }
+
+    .project-card {
+      background: #141a23;
+      border-radius: 8px;
+      overflow: hidden;
+      text-decoration: none;
+      color: white;
+      transition: transform 0.2s ease;
+    }
+
+    .project-card:hover {
+      transform: scale(1.02);
+    }
+
+    .project-card .thumbnail {
+      width: 100%;
+      height: 162px;
+      background: #1c1c1c;
+      overflow: hidden;
+    }
+
+    .project-card .thumbnail img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .project-title {
+      font-weight: bold;
+      font-size: 14px;
+      padding: 10px 12px 4px;
+    }
+
+    .project-meta {
+      font-size: 12px;
+      color: #aaa;
+      padding: 0 12px 12px;
+    }
+
+    .pagination {
+      text-align: right;
+      padding: 20px 0;
+    }
+
+    .next-button {
+      padding: 8px 14px;
+      background: #333;
+      border: none;
+      border-radius: 4px;
+      color: #fff;
+      cursor: pointer;
+    }
+
+    @media (max-width: 768px) {
+      .cta-row {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .cta-row input {
+        width: 100%;
+      }
+
+      .project-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
 </head>
 <body>
   <nav class="navbar">
@@ -39,66 +214,36 @@
     </div>
     
     <div class="project-grid">
-  <a href="visualizer.html" class="project-card">
-    <div class="thumbnail">
-      <img src="./images/neural-network-thumb.jpg" alt="Neural Network Visualization Engine" loading="lazy">
-    </div>
-    <div class="project-title">Neural Network Visualization Engine</div>
-    <div class="project-meta">👁 1245 • 💬 6 • ⭐ 48</div>
-  </a>
-  
-  <a href="geometric_wave_music.html" class="project-card">
-    <div class="thumbnail">
-      <img src="./images/geometric-wave-thumb.jpg" alt="Geometric wave music" loading="lazy">
-    </div>
-    <div class="project-title">Geometric wave music</div>
-    <div class="project-meta">👁 1097 • 💬 2 • ⭐ 66</div>
-  </a>
-  
-  <a href="multimodevisual" class="project-card">
-    <div class="thumbnail">
-      <a href="multimodevisual" class="project-card">
-  <div class="thumbnail">
-    <img src="./images/multimode.png" alt="Multimode Dot Visual Playground" width="317" height="162" loading="lazy">
-  </div>
-  <div class="project-title">Multimode Dot Visual Playground</div>
-  <div class="project-meta">👁 873 • 💬 1 • ⭐ 18</div>
-</a>
+      <a href="visualizer.html" class="project-card">
+        <div class="thumbnail">
+          <img src="./images/neural-network-thumb.jpg" alt="Neural Network Visualization Engine" loading="lazy">
+        </div>
+        <div class="project-title">Neural Network Visualization Engine</div>
+        <div class="project-meta">👁 1245 • 💬 6 • ⭐ 48</div>
+      </a>
 
-    <div class="project-title">Multimode Dot Visual Playground </div>
-    <div class="project-meta">👁 873 • 💬 1 • ⭐ 18</div>
-  </a>
-  
-  <a href="project4.html" class="project-card">
-    <div class="thumbnail">
-      <img src="./images/project4-thumb.jpg" alt="Project 4" loading="lazy">
-    </div>
-    <div class="project-title">Project 4</div>
-    <div class="project-meta">👁 642 • 💬 0 • ⭐ 12</div>
-  </a>
-  
-  <a href="project5.html" class="project-card">
-    <div class="thumbnail">
-      <img src="./images/project5-thumb.jpg" alt="Project 5" loading="lazy">
-    </div>
-    <div class="project-title">Project 5</div>
-    <div class="project-meta">👁 858 • 💬 0 • ⭐ 20</div>
-  </a>
-  
-  <a href="project6.html" class="project-card">
-    <div class="thumbnail">
-      <img src="./images/project6-thumb.jpg" alt="Project 6" loading="lazy">
-    </div>
-    <div class="project-title">Project 6</div>
-    <div class="project-meta">👁 1097 • 💬 2 • ⭐ 66</div>
-  </a>
-</div>
-    
-    <div class="pagination">
-      <button class="next-button">Next →</button>
-    </div>
-  </main>
-  
-  <script src="./script.js"></script>
-</body>
-</html>
+      <a href="geometric_wave_music.html" class="project-card">
+        <div class="thumbnail">
+          <img src="./images/geometric-wave-thumb.jpg" alt="Geometric wave music" loading="lazy">
+        </div>
+        <div class="project-title">Geometric wave music</div>
+        <div class="project-meta">👁 1097 • 💬 2 • ⭐ 66</div>
+      </a>
+
+      <a href="multimodevisual.html" class="project-card">
+        <div class="thumbnail">
+          <img src="./images/multimode.png" alt="Multimode Dot Visual Playground" loading="lazy">
+        </div>
+        <div class="project-title">Multimode Dot Visual Playground</div>
+        <div class="project-meta">👁 873 • 💬 1 • ⭐ 18</div>
+      </a>
+
+      <a href="project4.html" class="project-card">
+        <div class="thumbnail">
+          <img src="./images/project4-thumb.jpg" alt="Project 4" loading="lazy">
+        </div>
+        <div class="project-title">Project 4</div>
+        <div class="project-meta">👁 642 • 💬 0 • ⭐ 12</div>
+      </a>
+
+      <a href="project5.h
