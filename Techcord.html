@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Techno Chord Synthesizer</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #0a0a0a, #1a1a2e, #16213e);
+            color: #00ff88;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+        }
+        
+        .synth-container {
+            background: linear-gradient(145deg, #0f0f23, #1a1a2e);
+            border: 2px solid #00ff88;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 
+                0 0 20px rgba(0, 255, 136, 0.3),
+                inset 0 0 20px rgba(0, 0, 0, 0.5);
+            max-width: 800px;
+            width: 100%;
+            position: relative;
+        }
+        
+        .synth-container::before {
+            content: "";
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #00ff88, #ff0080, #8000ff, #00ff88);
+            z-index: -1;
+            border-radius: 15px;
+            animation: borderGlow 3s linear infinite;
+        }
+        
+        @keyframes borderGlow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        h1 {
+            text-align: center;
+            color: #00ff88;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 0 0 10px #00ff88;
+            letter-spacing: 3px;
+        }
+        
+        .controls-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .chord-section, .synth-controls {
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid #00ff88;
+            border-radius: 10px;
+            padding: 20px;
+        }
+        
+        .section-title {
+            color: #ff0080;
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .chord-buttons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .chord-btn {
+            background: linear-gradient(145deg, #1a1a2e, #0f0f23);
+            border: 1px solid #00ff88;
+            color: #00ff88;
+            padding: 12px 8px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+            transition: all 0.2s;
+            font-family: 'Courier New', monospace;
+            text-transform: uppercase;
+        }
+        
+        .chord-btn:hover {
+            background: linear-gradient(145deg, #00ff88, #00cc6a);
+            color: #0f0f23;
+            box-shadow: 0 0 15px #00ff88;
+            transform: scale(1.05);
+        }
+        
+        .chord-btn.active {
+            background: linear-gradient(145deg, #ff0080, #cc0066);
+            color: white;
+            box-shadow: 0 0 20px #ff0080;
+        }
+        
+        .synth-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .control-group {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .control-label {
+            color: #00ff88;
+            font-size: 14px;
+            min-width: 80px;
+        }
+        
+        .control-input {
+            background: #0f0f23;
+            border: 1px solid #00ff88;
+            color: #00ff88;
+            padding: 5px 10px;
+            border-radius: 3px;
+            width: 100px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .control-input:focus {
+            outline: none;
+            box-shadow: 0 0 10px #00ff88;
+        }
+        
+        .play-area {
+            background: linear-gradient(90deg, #0f0f23, #1a1a2e, #0f0f23);
+            border: 2px solid #00ff88;
+            border-radius: 10px;
+            height: 120px;
+            margin: 20px 0;
+            position: relative;
+            cursor: pointer;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .play-area::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                rgba(255, 0, 128, 0.4) 50%, 
+                transparent 100%);
+            transform: translateX(-100%);
+            transition: transform 0.2s ease;
+        }
+        
+        .play-area.playing::before {
+            transform: translateX(100%);
+        }
+        
+        .play-text {
+            font-size: 20px;
+            font-weight: bold;
+            color: #00ff88;
+            pointer-events: none;
+            text-shadow: 0 0 10px #00ff88;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .pattern-section {
+            background: rgba(255, 0, 128, 0.1);
+            border: 1px solid #ff0080;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .pattern-controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .pattern-btn {
+            background: linear-gradient(145deg, #1a1a2e, #0f0f23);
+            border: 1px solid #ff0080;
+            color: #ff0080;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.2s;
+            font-family: 'Courier New', monospace;
+            text-transform: uppercase;
+        }
+        
+        .pattern-btn:hover {
+            background: linear-gradient(145deg, #ff0080, #cc0066);
+            color: white;
+            box-shadow: 0 0 15px #ff0080;
+            transform: scale(1.05);
+        }
+        
+        .pattern-btn.active {
+            background: linear-gradient(145deg, #8000ff, #6600cc);
+            color: white;
+            box-shadow: 0 0 20px #8000ff;
+        }
+        
+        .selected-chord {
+            text-align: center;
+            font-size: 18px;
+            margin: 15px 0;
+            color: #ff0080;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .bpm-display {
+            text-align: center;
+            color: #8000ff;
+            font-size: 24px;
+            font-weight: bold;
+            margin: 10px 0;
+            text-shadow: 0 0 10px #8000ff;
+        }
+        
+        .visualizer {
+            height: 60px;
+            background: #0f0f23;
+            border: 1px solid #00ff88;
+            border-radius: 5px;
+            margin: 20px 0;
+            display: flex;
+            align-items: end;
+            justify-content: space-around;
+            padding: 5px;
+            overflow: hidden;
+        }
+        
+        .bar {
+            width: 8px;
+            background: linear-gradient(to top, #00ff88, #ff0080);
+            border-radius: 2px;
+            transition: height 0.1s ease;
+            height: 10px;
+        }
+        
+        @media (max-width: 768px) {
+            .controls-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .chord-buttons {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="synth-container">
+        <h1>⚡ TECHNO SYNTH ⚡</h1>
+        
+        <div class="controls-section">
+            <div class="chord-section">
+                <div class="section-title">Chord Bank</div>
+                <div class="chord-buttons">
+                    <button class="chord-btn" data-chord="Cm">C Minor</button>
+                    <button class="chord-btn" data-chord="Fm">F Minor</button>
+                    <button class="chord-btn" data-chord="Gm">G Minor</button>
+                    <button class="chord-btn" data-chord="Am">A Minor</button>
+                    <button class="chord-btn" data-chord="Dm">D Minor</button>
+                    <button class="chord-btn" data-chord="Em">E Minor</button>
+                    <button class="chord-btn" data-chord="Cm7">C Min7</button>
+                    <button class="chord-btn" data-chord="Fm7">F Min7</button>
+                    <button class="chord-btn" data-chord="Bdim">B Dim</button>
+                </div>
+                
+                <div class="selected-chord" id="selectedChord">Select Chord</div>
+            </div>
+            
+            <div class="synth-controls">
+                <div class="section-title">Synthesizer</div>
+                <div class="control-group">
+                    <label class="control-label">Cutoff</label>
+                    <input type="range" class="control-input" id="cutoffSlider" min="200" max="8000" value="2000">
+                </div>
+                <div class="control-group">
+                    <label class="control-label">Resonance</label>
+                    <input type="range" class="control-input" id="resonanceSlider" min="1" max="30" value="5">
+                </div>
+                <div class="control-group">
+                    <label class="control-label">Distortion</label>
+                    <input type="range" class="control-input" id="distortionSlider" min="0" max="100" value="20">
+                </div>
+                <div class="control-group">
+                    <label class="control-label">Attack</label>
+                    <input type="range" class="control-input" id="attackSlider" min="0.001" max="1" step="0.001" value="0.01">
+                </div>
+            </div>
+        </div>
+        
+        <div class="play-area" id="playArea">
+            <div class="play-text">TRIGGER ZONE</div>
+        </div>
+        
+        <div class="visualizer" id="visualizer">
+            <!-- Bars will be generated by JS -->
+        </div>
+        
+        <div class="pattern-section">
+            <div class="section-title">Pattern Engine</div>
+            <div class="bpm-display" id="bpmDisplay">128 BPM</div>
+            <div class="pattern-controls">
+                <button class="pattern-btn" id="sequencerBtn">Start Sequencer</button>
+                <button class="pattern-btn" id="arpeggioBtn">Arpeggiator</button>
+                <select id="patternSelect" class="control-input">
+                    <option value="techno">Hard Techno</option>
+                    <option value="minimal">Minimal</option>
+                    <option value="acid">Acid Techno</option>
+                    <option value="industrial">Industrial</option>
+                </select>
+                <input type="range" id="bpmSlider" min="100" max="180" value="128" class="control-input">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class TechnoSynth {
+            constructor() {
+                this.audioContext = null;
+                this.selectedChord = null;
+                this.sequencerPlaying = false;
+                this.arpeggioPlaying = false;
+                this.sequencerInterval = null;
+                this.arpeggioInterval = null;
+                this.gainNode = null;
+                this.currentOscillators = [];
+                this.bpm = 128;
+                
+                // Techno-oriented chord definitions (darker, minor-focused)
+                this.chordDefinitions = {
+                    'Cm': [130.81, 155.56, 196.00],      // C-Eb-G
+                    'Fm': [174.61, 207.65, 261.63],      // F-Ab-C
+                    'Gm': [196.00, 233.08, 293.66],      // G-Bb-D
+                    'Am': [220.00, 261.63, 329.63],      // A-C-E
+                    'Dm': [146.83, 174.61, 220.00],      // D-F-A
+                    'Em': [164.81, 196.00, 246.94],      // E-G-B
+                    'Cm7': [130.81, 155.56, 196.00, 233.08], // C-Eb-G-Bb
+                    'Fm7': [174.61, 207.65, 261.63, 311.13], // F-Ab-C-Eb
+                    'Bdim': [123.47, 146.83, 174.61]     // B-D-F
+                };
+                
+                this.init();
+            }
+            
+            async init() {
+                this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                
+                // Create main gain node
+                this.gainNode = this.audioContext.createGain();
+                this.gainNode.gain.value = 0.6;
+                this.gainNode.connect(this.audioContext.destination);
+                
+                this.setupEventListeners();
+                this.createVisualizer();
+                this.startVisualizerAnimation();
+            }
+            
+            setupEventListeners() {
+                // Chord buttons
+                document.querySelectorAll('.chord-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        this.selectChord(e.target.dataset.chord);
+                        this.updateActiveChord(e.target);
+                    });
+                });
+                
+                // Play area
+                const playArea = document.getElementById('playArea');
+                playArea.addEventListener('click', () => this.triggerChord());
+                playArea.addEventListener('mousedown', () => this.startContinuousPlay());
+                playArea.addEventListener('mouseup', () => this.stopContinuousPlay());
+                playArea.addEventListener('mouseleave', () => this.stopContinuousPlay());
+                
+                // Pattern controls
+                document.getElementById('sequencerBtn').addEventListener('click', () => this.toggleSequencer());
+                document.getElementById('arpeggioBtn').addEventListener('click', () => this.toggleArpeggio());
+                
+                // BPM control
+                document.getElementById('bpmSlider').addEventListener('input', (e) => {
+                    this.bpm = parseInt(e.target.value);
+                    document.getElementById('bpmDisplay').textContent = `${this.bpm} BPM`;
+                    this.updateSequencerTiming();
+                });
+            }
+            
+            selectChord(chordName) {
+                this.selectedChord = chordName;
+                document.getElementById('selectedChord').textContent = `${chordName}`;
+            }
+            
+            updateActiveChord(activeBtn) {
+                document.querySelectorAll('.chord-btn').forEach(btn => btn.classList.remove('active'));
+                activeBtn.classList.add('active');
+            }
+            
+            async triggerChord() {
+                if (!this.selectedChord || !this.chordDefinitions[this.selectedChord]) return;
+                
+                if (this.audioContext.state === 'suspended') {
+                    await this.audioContext.resume();
+                }
+                
+                // Visual feedback
+                const playArea = document.getElementById('playArea');
+                playArea.classList.add('playing');
+                setTimeout(() => playArea.classList.remove('playing'), 200);
+                
+                this.playTechnoChord(this.chordDefinitions[this.selectedChord]);
+            }
+            
+            playTechnoChord(frequencies) {
+                // Stop previous sounds for clean techno sound
+                this.stopCurrentSounds();
+                
+                const now = this.audioContext.currentTime;
+                const cutoff = document.getElementById('cutoffSlider').value;
+                const resonance = document.getElementById('resonanceSlider').value;
+                const distortion = document.getElementById('distortionSlider').value;
+                const attack = parseFloat(document.getElementById('attackSlider').value);
+                
+                this.currentOscillators = [];
+                
+                frequencies.forEach((freq, index) => {
+                    // Create oscillator with techno characteristics
+                    const oscillator = this.audioContext.createOscillator();
+                    const oscillator2 = this.audioContext.createOscillator(); // Detuned second oscillator
+                    const noteGain = this.audioContext.createGain();
+                    const filter = this.audioContext.createBiquadFilter();
+                    const distortionNode = this.audioContext.createWaveShaper();
+                    
+                    // Techno sound: saw wave with slight detune
+                    oscillator.type = 'sawtooth';
+                    oscillator2.type = 'sawtooth';
+                    oscillator.frequency.setValueAtTime(freq, now);
+                    oscillator2.frequency.setValueAtTime(freq, now);
+                    oscillator2.detune.setValueAtTime(7, now); // Slightly detuned for thickness
+                    
+                    // Aggressive low-pass filter
+                    filter.type = 'lowpass';
+                    filter.frequency.setValueAtTime(cutoff, now);
+                    filter.Q.setValueAtTime(resonance, now);
+                    
+                    // Distortion for harder sound
+                    distortionNode.curve = this.createDistortionCurve(distortion);
+                    distortionNode.oversample = '4x';
+                    
+                    // Techno envelope: punchy attack, quick decay
+                    noteGain.gain.setValueAtTime(0, now);
+                    noteGain.gain.linearRampToValueAtTime(0.8, now + attack);
+                    noteGain.gain.exponentialRampToValueAtTime(0.3, now + 0.1);
+                    noteGain.gain.exponentialRampToValueAtTime(0.01, now + 1.5);
+                    
+                    // Connect audio graph
+                    oscillator.connect(filter);
+                    oscillator2.connect(filter);
+                    filter.connect(distortionNode);
+                    distortionNode.connect(noteGain);
+                    noteGain.connect(this.gainNode);
+                    
+                    // Start oscillators
+                    oscillator.start(now);
+                    oscillator2.start(now);
+                    oscillator.stop(now + 1.5);
+                    oscillator2.stop(now + 1.5);
+                    
+                    this.currentOscillators.push(oscillator, oscillator2);
+                });
+            }
+            
+            createDistortionCurve(amount) {
+                const samples = 44100;
+                const curve = new Float32Array(samples);
+                const deg = Math.PI / 180;
+                
+                for (let i = 0; i < samples; i++) {
+                    const x = (i * 2) / samples - 1;
+                    curve[i] = (3 + amount) * x * 20 * deg / (Math.PI + amount * Math.abs(x));
+                }
+                
+                return curve;
+            }
+            
+            stopCurrentSounds() {
+                if (this.currentOscillators) {
+                    this.currentOscillators.forEach(osc => {
+                        try {
+                            osc.stop();
+                        } catch (e) {
+                            // Already stopped
+                        }
+                    });
+                    this.currentOscillators = [];
+                }
+            }
+            
+            toggleSequencer() {
+                const btn = document.getElementById('sequencerBtn');
+                
+                if (this.sequencerPlaying) {
+                    this.stopSequencer();
+                    btn.textContent = 'Start Sequencer';
+                    btn.classList.remove('active');
+                } else {
+                    this.startSequencer();
+                    btn.textContent = 'Stop Sequencer';
+                    btn.classList.add('active');
+                }
+            }
+            
+            startSequencer() {
+                this.sequencerPlaying = true;
+                const pattern = this.getSequencerPattern();
+                let stepIndex = 0;
+                const stepTime = (60 / this.bpm / 4) * 1000; // 16th notes
+                
+                this.sequencerInterval = setInterval(() => {
+                    if (pattern[stepIndex] && this.selectedChord) {
+                        this.triggerChord();
+                    }
+                    stepIndex = (stepIndex + 1) % pattern.length;
+                }, stepTime);
+            }
+            
+            stopSequencer() {
+                this.sequencerPlaying = false;
+                if (this.sequencerInterval) {
+                    clearInterval(this.sequencerInterval);
+                    this.sequencerInterval = null;
+                }
+            }
+            
+            toggleArpeggio() {
+                const btn = document.getElementById('arpeggioBtn');
+                
+                if (this.arpeggioPlaying) {
+                    this.stopArpeggio();
+                    btn.textContent = 'Arpeggiator';
+                    btn.classList.remove('active');
+                } else {
+                    this.startArpeggio();
+                    btn.textContent = 'Stop Arp';
+                    btn.classList.add('active');
+                }
+            }
+            
+            startArpeggio() {
+                if (!this.selectedChord) return;
+                
+                this.arpeggioPlaying = true;
+                const frequencies = this.chordDefinitions[this.selectedChord];
+                let noteIndex = 0;
+                const noteTime = (60 / this.bpm / 4) * 1000; // 16th notes
+                
+                this.arpeggioInterval = setInterval(() => {
+                    this.playArpeggioNote(frequencies[noteIndex]);
+                    noteIndex = (noteIndex + 1) % frequencies.length;
+                }, noteTime);
+            }
+            
+            stopArpeggio() {
+                this.arpeggioPlaying = false;
+                if (this.arpeggioInterval) {
+                    clearInterval(this.arpeggioInterval);
+                    this.arpeggioInterval = null;
+                }
+            }
+            
+            playArpeggioNote(frequency) {
+                const now = this.audioContext.currentTime;
+                const oscillator = this.audioContext.createOscillator();
+                const gain = this.audioContext.createGain();
+                const filter = this.audioContext.createBiquadFilter();
+                
+                oscillator.type = 'square';
+                oscillator.frequency.setValueAtTime(frequency, now);
+                
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(3000, now);
+                filter.Q.setValueAtTime(10, now);
+                
+                gain.gain.setValueAtTime(0, now);
+                gain.gain.linearRampToValueAtTime(0.3, now + 0.01);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+                
+                oscillator.connect(filter);
+                filter.connect(gain);
+                gain.connect(this.gainNode);
+                
+                oscillator.start(now);
+                oscillator.stop(now + 0.2);
+            }
+            
+            getSequencerPattern() {
+                const patternType = document.getElementById('patternSelect').value;
+                const patterns = {
+                    techno: [1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0],
+                    minimal: [1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
+                    acid: [1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1],
+                    industrial: [1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1]
+                };
+                return patterns[patternType] || patterns.techno;
+            }
+            
+            updateSequencerTiming() {
+                if (this.sequencerPlaying) {
+                    this.stopSequencer();
+                    this.startSequencer();
+                }
+                if (this.arpeggioPlaying) {
+                    this.stopArpeggio();
+                    this.startArpeggio();
+                }
+            }
+            
+            createVisualizer() {
+                const visualizer = document.getElementById('visualizer');
+                for (let i = 0; i < 32; i++) {
+                    const bar = document.createElement('div');
+                    bar.className = 'bar';
+                    visualizer.appendChild(bar);
+                }
+            }
+            
+            startVisualizerAnimation() {
+                const bars = document.querySelectorAll('.bar');
+                
+                setInterval(() => {
+                    bars.forEach(bar => {
+                        const height = Math.random() * 50 + 10;
+                        bar.style.height = height + 'px';
+                    });
+                }, 100);
+            }
+            
+            startContinuousPlay() {
+                this.continuousPlaying = true;
+                const playChord = () => {
+                    if (this.continuousPlaying) {
+                        this.triggerChord();
+                        setTimeout(playChord, 200);
+                    }
+                };
+                playChord();
+            }
+            
+            stopContinuousPlay() {
+                this.continuousPlaying = false;
+            }
+        }
+        
+        // Initialize when page loads
+        window.addEventListener('load', () => {
+            new TechnoSynth();
+        });
+    </script>
+</body>
+</html>
