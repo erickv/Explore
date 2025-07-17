@@ -31,7 +31,37 @@
             position: relative;
         }
         
-        .synth-container::before {
+        .header-nav {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(0, 255, 136, 0.2);
+        }
+        
+        .back-button {
+            background: linear-gradient(145deg, #1a1a2e, #0f0f23);
+            border: 1px solid #00ff88;
+            color: #00ff88;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.2s;
+            font-family: 'Courier New', monospace;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .back-button:hover {
+            background: linear-gradient(145deg, #00ff88, #00cc6a);
+            color: #0f0f23;
+            box-shadow: 0 0 15px #00ff88;
+            transform: translateY(-2px);
+        }
+        
+        .back-button:active {
+            transform: translateY(0);
+        }
             content: "";
             position: absolute;
             top: -2px;
@@ -287,6 +317,9 @@
 </head>
 <body>
     <div class="synth-container">
+        <div class="header-nav">
+            <button class="back-button" onclick="window.history.back()">← Back to InnoverseLABS</button>
+        </div>
         <h1>⚡ TECHNO SYNTH ⚡</h1>
         
         <div class="controls-section">
