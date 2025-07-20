@@ -1,143 +1,297 @@
-class TechnoWorkstation {
-    constructor() {
-        this.audioContext = null;
-        this.selectedChord = null;
-        this.currentNote = null;
-        this.sequencerPlaying = false;
-        this.arpeggioPlaying = false;
-        this.drumSequencerPlaying = false;
-        this.sequencerInterval = null;
-        this.arpeggioInterval = null;
-        this.drumSequencerInterval = null;
-        this.gainNode = null;
-        this.drumGain = null;
-        this.limiter = null;
-        this.currentOscillators = [];
-        this.bpm = 128;
-        
-        // Note frequencies for keyboard
-        this.noteFrequencies = {
-            'C3': 130.81, 'C#3': 138.59, 'D3': 146.83, 'D#3': 155.56, 'E3': 164.81, 'F3': 174.61,
-            'F#3': 185.00, 'G3': 196.00, 'G#3': 207.65, 'A3': 220.00, 'A#3': 233.08, 'B3': 246.94,
-            'C4': 261.63, 'C#4': 277.18, 'D4': 293.66, 'D#4': 311.13, 'E4': 329.63, 'F4': 349.23,
-            'F#4': 369.99, 'G4': 392.00, 'G#4': 415.30, 'A4': 440.00, 'A#4': 466.16, 'B4': 493.88,
-            'C5': 523.25
-        };
-        
-        // Techno chord definitions
-        this.chordDefinitions = {
-            'Cm': [130.81, 155.56, 196.00],
-            'Fm': [174.61, 207.65, 261.63],
-            'Gm': [196.00, 233.08, 293.66],
-            'Am': [220.00, 261.63, 329.63],
-            'Dm': [146.83, 174.61, 220.00],
-            'Em': [164.81, 196.00, 246.94],
-            'Cm7': [130.81, 155.56, 196.00, 233.08],
-            'Fm7': [174.61, 207.65, 261.63, 311.13],
-            'Bdim': [123.47, 146.83, 174.61]
-        };
-        
-        this.init();
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>InnoverseLABS</title>
+  <style>
+    * {
+      box-sizing: border-box;
     }
-    
-    async init() {
-        try {
-            this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            
-            // Create main gain node with lower volume
-            this.gainNode = this.audioContext.createGain();
-            this.gainNode.gain.value = 0.15;
-            this.gainNode.connect(this.audioContext.destination);
-            
-            // Create drum gain node
-            this.drumGain = this.audioContext.createGain();
-            this.drumGain.gain.value = 0.6;
-            this.drumGain.connect(this.gainNode);
-            
-            // Create master limiter to prevent distortion
-            this.limiter = this.audioContext.createDynamicsCompressor();
-            this.limiter.threshold.setValueAtTime(-6, this.audioContext.currentTime);
-            this.limiter.knee.setValueAtTime(5, this.audioContext.currentTime);
-            this.limiter.ratio.setValueAtTime(20, this.audioContext.currentTime);
-            this.limiter.attack.setValueAtTime(0.003, this.audioContext.currentTime);
-            this.limiter.release.setValueAtTime(0.1, this.audioContext.currentTime);
-            this.limiter.connect(this.gainNode);
-            
-            this.setupEventListeners();
-            this.createKeyboard();
-            this.createVisualizer();
-            this.startVisualizerAnimation();
-            this.updateStatus('Audio system initialized! Ready to play.');
-        } catch (error) {
-            console.error('Audio initialization failed:', error);
-            this.updateStatus('Audio not available. Please check browser settings.');
-        }
+
+    body {
+      margin: 0;
+      font-family: system-ui, sans-serif;
+      background: #0b0e14;
+      color: white;
     }
-    
-    updateStatus(message) {
-        const statusDisplay = document.getElementById('statusDisplay');
-        if (statusDisplay) {
-            statusDisplay.innerHTML = message;
-        }
+
+    nav.navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 24px;
+      background: #000;
+      flex-wrap: wrap;
     }
-    
-    setupEventListeners() {
-        // Chord buttons
-        document.querySelectorAll('.chord-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                this.selectChord(e.target.dataset.chord);
-                this.updateActiveChord(e.target);
-                this.playChord();
-            });
-        });
-        
-        // Pattern controls
-        document.getElementById('sequencerBtn').addEventListener('click', () => this.toggleSequencer());
-        document.getElementById('arpeggioBtn').addEventListener('click', () => this.toggleArpeggio());
-        
-        // Master volume control
-        document.getElementById('masterVolume').addEventListener('input', (e) => {
-            if (this.gainNode) {
-                this.gainNode.gain.setValueAtTime(parseFloat(e.target.value), this.audioContext.currentTime);
-            }
-        });
-        
-        // Drum volume control
-        document.getElementById('drumVolume').addEventListener('input', (e) => {
-            if (this.drumGain) {
-                this.drumGain.gain.setValueAtTime(parseFloat(e.target.value), this.audioContext.currentTime);
-            }
-        });
-        
-        // Drum pads
-        document.querySelectorAll('.drum-pad').forEach(pad => {
-            pad.addEventListener('click', (e) => {
-                this.playDrum(e.target.dataset.drum);
-                e.target.classList.add('active');
-                setTimeout(() => e.target.classList.remove('active'), 100);
-            });
-        });
-        
-        // Drum sequencer
-        document.getElementById('drumSequencerBtn').addEventListener('click', () => this.toggleDrumSequencer());
-        
-        // BPM control
-        document.getElementById('bpmSlider').addEventListener('input', (e) => {
-            this.bpm = parseInt(e.target.value);
-            document.getElementById('bpmDisplay').textContent = `${this.bpm} BPM`;
-            this.updateSequencerTiming();
-        });
-        
-        // Emergency stop - spacebar
-        document.addEventListener('keydown', (e) => {
-            if (e.code === 'Space') {
-                e.preventDefault();
-                this.emergencyStop();
-            }
-        });
-        
-        // Computer keyboard for drums (number keys)
-        document.addEventListener('keydown', (e) => {
-            const drumMap = {
-                'Digit1': 'kick', 'Digit2': 'snare', 'Digit3': 'hihat', 'Digit4': 'openhat',
-                'Digit5': 'crash', 'Digit6': 'clap', 'Digit7': 'ride', 'Digit8': 'perc
+
+    .nav-logo img {
+      height: 32px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 20px;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .nav-links li a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 14px;
+    }
+
+    .hero-section {
+      text-align: center;
+      padding: 60px 20px 40px;
+      background: #000;
+    }
+
+    .hero-logo-large {
+      width: 64px;
+      margin-bottom: 20px;
+    }
+
+    .hero-section h1 {
+      font-size: 2.2rem;
+      font-weight: bold;
+      margin-bottom: 12px;
+      line-height: 1.3;
+    }
+
+    .hero-section p {
+      max-width: 560px;
+      margin: 0 auto 24px;
+      font-size: 15px;
+      color: #aaa;
+      line-height: 1.6;
+    }
+
+    .cta-row {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .cta-row input {
+      padding: 10px;
+      border-radius: 4px;
+      border: none;
+      width: 240px;
+      max-width: 100%;
+    }
+
+    .cta-button.green {
+      background: #00d26a;
+      color: #000;
+      border: none;
+      padding: 10px 14px;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 4px;
+      min-width: 140px;
+    }
+
+    .project-section {
+      padding: 40px 24px;
+      background: #0b0e14;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+
+    .section-header h2 {
+      font-size: 18px;
+      font-weight: bold;
+      margin: 0 0 12px 0;
+    }
+
+    .view-all {
+      font-size: 13px;
+      text-decoration: none;
+      color: #36c2f1;
+    }
+
+    .project-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 20px;
+    }
+
+    .project-card {
+      background: #141a23;
+      border-radius: 8px;
+      overflow: hidden;
+      text-decoration: none;
+      color: white;
+      transition: transform 0.2s ease;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .project-card:hover {
+      transform: scale(1.02);
+    }
+
+    .project-card .thumbnail {
+      width: 100%;
+      height: 162px;
+      background: #1c1c1c;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .project-card .thumbnail img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .project-title {
+      font-weight: bold;
+      font-size: 14px;
+      padding: 10px 12px 4px;
+    }
+
+    .project-meta {
+      font-size: 12px;
+      color: #aaa;
+      padding: 0 12px 12px;
+    }
+
+    .pagination {
+      text-align: right;
+      padding: 20px 0;
+    }
+
+    .next-button {
+      padding: 8px 14px;
+      background: #333;
+      border: none;
+      border-radius: 4px;
+      color: #fff;
+      cursor: pointer;
+    }
+
+    @media (max-width: 500px) {
+      .hero-section h1 {
+        font-size: 1.5rem;
+      }
+
+      .nav-links {
+        flex-direction: column;
+        width: 100%;
+        align-items: flex-end;
+        gap: 12px;
+        margin-top: 8px;
+      }
+
+      .cta-row {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .cta-button.green {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-logo">
+      <img src="./logo.png" alt="InnoverseLABS logo" />
+    </div>
+    <ul class="nav-links">
+      <li><a href="#">Home</a></li>
+      <li><a href="#">Projects</a></li>
+      <li><a href="#">Labs</a></li>
+      <li><a href="#">Community</a></li>
+      <li><a href="#">About</a></li>
+    </ul>
+  </nav>
+
+  <header class="hero-section">
+    <div class="logo-container">
+      <img src="./logo.png" alt="InnoverseLABS logo" class="hero-logo-large">
+    </div>
+    <h1>InnoverseLABS is where<br>innovation meets<br>experimentation.</h1>
+    <p>Explore cutting-edge projects and breakthrough ideas. Share your latest innovations and collaborate with fellow researchers. Discover emerging technologies and push the boundaries of what's possible.</p>
+    <div class="cta-row">
+      <input type="email" placeholder="Enter email to join" aria-label="Email address" />
+      <button class="cta-button green">Join Innovation</button>
+    </div>
+  </header>
+
+  <main class="project-section">
+    <div class="section-header">
+      <h2>Featured Projects</h2>
+      <a href="#" class="view-all">VIEW ALL PROJECTS →</a>
+    </div>
+
+    <div class="project-grid">
+      <a href="visualizer.html" class="project-card">
+        <div class="thumbnail">
+          <img src="./images/neural-network-thumb.jpg" alt="Neural Network Visualization Engine" loading="lazy">
+        </div>
+        <div class="project-title">Neural Network Visualization Engine</div>
+        <div class="project-meta">👁 1245 • 💬 6 • ⭐ 48</div>
+      </a>
+
+      <a href="geometric_wave_music.html" class="project-card">
+        <div class="thumbnail">
+          <img src="./images/geometric-wave-thumb.jpg" alt="Geometric wave music" loading="lazy">
+        </div>
+        <div class="project-title">Geometric wave music</div>
+        <div class="project-meta">👁 1097 • 💬 2 • ⭐ 66</div>
+      </a>
+
+      <a href="multimodevisual.html" class="project-card">
+        <div class="thumbnail">
+          <img src="./images/multimode.png" alt="Multimode Dot Visual Playground" loading="lazy">
+        </div>
+        <div class="project-title">Multimode Dot Visual Playground</div>
+        <div class="project-meta">👁 873 • 💬 1 • ⭐ 18</div>
+      </a>
+
+      <a href="technocord/" class="project-card">
+        <div class="thumbnail">
+          <img src="./images/techno-workstation-thumb.jpg" alt="Techno Workstation" loading="lazy">
+        </div>
+        <div class="project-title">Techno Workstation</div>
+        <div class="project-meta">👁 642 • 💬 0 • ⭐ 12</div>
+      </a>
+
+      <a href="project5.html" class="project-card">
+        <div class="thumbnail">
+          <img src="./images/project5-thumb.jpg" alt="Project 5" loading="lazy">
+        </div>
+        <div class="project-title">Project 5</div>
+        <div class="project-meta">👁 858 • 💬 0 • ⭐ 20</div>
+      </a>
+
+      <a href="project6.html" class="project-card">
+        <div class="thumbnail">
+          <img src="./images/project6-thumb.jpg" alt="Project 6" loading="lazy">
+        </div>
+        <div class="project-title">Project 6</div>
+        <div class="project-meta">👁 1097 • 💬 2 • ⭐ 66</div>
+      </a>
+    </div>
+
+    <div class="pagination">
+      <button class="next-button">Next →</button>
+    </div>
+  </main>
+</body>
+</html>
