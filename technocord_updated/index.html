@@ -1,58 +1,117 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Technocord Workstation</title>
-  <link rel="stylesheet" href="styles.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.min.js"></script>
-  <script defer src="main.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Techno Workstation - InnoverseLABS</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <div class="workstation-container">
-    <div class="header-nav">
-      <button class="back-button" onclick="window.history.back()">&larr; Back to InnoverseLABS</button>
-    </div>
-    <h1>&#9889; TECHNOCORD WORKSTATION &#9889;</h1>
-    <div class="main-layout">
-      <div class="left-panel">
-        <div class="controls-section">
-          <div class="chord-section">
-            <div class="section-title">Chord Bank</div>
-            <div class="chord-buttons"></div>
-            <div class="selected-chord" id="selectedChord">Select Chord</div>
-          </div>
-          <div class="synth-controls">
-            <div class="section-title">Synthesizer</div>
-            <div class="control-group"><label class="control-label" for="cutoffSlider">Cutoff</label><input type="range" id="cutoffSlider" min="200" max="8000" value="2000"></div>
-            <div class="control-group"><label class="control-label" for="resonanceSlider">Resonance</label><input type="range" id="resonanceSlider" min="1" max="15" value="3"></div>
-            <div class="control-group"><label class="control-label" for="distortionSlider">Distortion</label><input type="range" id="distortionSlider" min="0" max="30" value="5"></div>
-            <div class="control-group"><label class="control-label" for="attackSlider">Attack</label><input type="range" id="attackSlider" min="0.001" max="0.5" step="0.001" value="0.01"></div>
-            <div class="control-group"><label class="control-label" for="releaseSlider">Release</label><input type="range" id="releaseSlider" min="0.1" max="2" step="0.1" value="0.8"></div>
-            <div class="control-group"><label class="control-label" for="masterVolume">Master Vol</label><input type="range" id="masterVolume" min="0" max="1" step="0.01" value="0.15"></div>
-          </div>
+    <div class="workstation-container">
+        <div class="header-nav">
+            <button class="back-button" onclick="window.history.back()">← Back to InnoverseLABS</button>
         </div>
-        <div class="keyboard-container"><div class="section-title">Virtual Keyboard</div><div class="keyboard" id="keyboard"></div><div class="keyboard-help">Use A-K keys | SPACEBAR = Emergency Stop</div></div>
-        <div class="drum-machine">
-          <div class="section-title">Drum Machine</div>
-          <div class="drum-pads" id="drumPads"></div>
-          <div class="drum-controls">
-            <div class="control-group"><label class="control-label" for="drumVolume">Drum Vol</label><input type="range" id="drumVolume" min="0" max="1" step="0.01" value="0.6"></div>
-            <div class="pattern-controls">
-              <button id="drumSequencerBtn">Drum Seq</button>
-              <select id="drumPattern">
-                <option value="techno">Techno</option>
-                <option value="minimal">Minimal</option>
-                <option value="breakbeat">Breakbeat</option>
-                <option value="industrial">Industrial</option>
-              </select>
+        <h1>⚡ TECHNO WORKSTATION ⚡</h1>
+        
+        <div class="main-layout">
+            <div class="left-panel">
+                <div class="controls-section">
+                    <div class="chord-section">
+                        <div class="section-title">Chord Bank</div>
+                        <div class="chord-buttons">
+                            <button class="chord-btn" data-chord="Cm">C Min</button>
+                            <button class="chord-btn" data-chord="Fm">F Min</button>
+                            <button class="chord-btn" data-chord="Gm">G Min</button>
+                            <button class="chord-btn" data-chord="Am">A Min</button>
+                            <button class="chord-btn" data-chord="Dm">D Min</button>
+                            <button class="chord-btn" data-chord="Em">E Min</button>
+                            <button class="chord-btn" data-chord="Cm7">C Min7</button>
+                            <button class="chord-btn" data-chord="Fm7">F Min7</button>
+                            <button class="chord-btn" data-chord="Bdim">B Dim</button>
+                        </div>
+                        <div class="selected-chord" id="selectedChord">Select Chord</div>
+                    </div>
+                    
+                    <div class="synth-controls">
+                        <div class="section-title">Synthesizer</div>
+                        <div class="control-group">
+                            <label class="control-label">Cutoff</label>
+                            <input type="range" class="control-input" id="cutoffSlider" min="200" max="8000" value="2000">
+                        </div>
+                        <div class="control-group">
+                            <label class="control-label">Resonance</label>
+                            <input type="range" class="control-input" id="resonanceSlider" min="1" max="15" value="3">
+                        </div>
+                        <div class="control-group">
+                            <label class="control-label">Distortion</label>
+                            <input type="range" class="control-input" id="distortionSlider" min="0" max="30" value="5">
+                        </div>
+                        <div class="control-group">
+                            <label class="control-label">Master Vol</label>
+                            <input type="range" class="control-input" id="masterVolume" min="0" max="1" step="0.01" value="0.15">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="keyboard-container">
+                    <div class="section-title">Virtual Keyboard</div>
+                    <div class="keyboard" id="keyboard">
+                        <!-- Keys will be generated by JavaScript -->
+                    </div>
+                    <div class="keyboard-instructions">
+                        Mouse or keyboard: A-K keys | Numbers 1-8 for drums | SPACEBAR = Emergency Stop
+                    </div>
+                </div>
+                
+                <div class="drum-machine">
+                    <div class="section-title">Drum Machine</div>
+                    <div class="drum-pads">
+                        <button class="drum-pad" data-drum="kick">KICK</button>
+                        <button class="drum-pad" data-drum="snare">SNARE</button>
+                        <button class="drum-pad" data-drum="hihat">HI-HAT</button>
+                        <button class="drum-pad" data-drum="openhat">OPEN HAT</button>
+                        <button class="drum-pad" data-drum="crash">CRASH</button>
+                        <button class="drum-pad" data-drum="clap">CLAP</button>
+                        <button class="drum-pad" data-drum="ride">RIDE</button>
+                        <button class="drum-pad" data-drum="perc">PERC</button>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label class="control-label">Drum Vol</label>
+                        <input type="range" class="control-input" id="drumVolume" min="0" max="1" step="0.01" value="0.6">
+                    </div>
+                    <div class="pattern-controls">
+                        <button class="pattern-btn" id="drumSequencerBtn">Start Drums</button>
+                    </div>
+                </div>
+                
+                <div class="visualizer" id="visualizer">
+                    <!-- Bars will be generated by JS -->
+                </div>
             </div>
-          </div>
+            
+            <div class="right-panel">
+                <div class="sound-editor">
+                    <div class="section-title">Pattern Engine</div>
+                    <div class="bpm-display" id="bpmDisplay">128 BPM</div>
+                    <div class="pattern-controls">
+                        <button class="pattern-btn" id="sequencerBtn">Chord Seq</button>
+                        <button class="pattern-btn" id="arpeggioBtn">Arpeggio</button>
+                    </div>
+                    <div class="control-group">
+                        <label class="control-label">Tempo</label>
+                        <input type="range" id="bpmSlider" min="100" max="180" value="128" class="control-input">
+                    </div>
+                </div>
+                
+                <div class="status-display" id="statusDisplay">
+                    Ready to create music!<br>
+                    Select a chord and start playing.
+                </div>
+            </div>
         </div>
-        <div class="visualizer" id="visualizer"></div>
-      </div>
-      <div class="right-panel" id="loopSlots"></div>
     </div>
-  </div>
+
+    <script src="main.js"></script>
 </body>
 </html>
