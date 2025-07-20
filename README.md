@@ -1,2 +1,2 @@
 # Explore
-any coding experiment or idea we'll go here
+Any coding experiment or idea will go here
