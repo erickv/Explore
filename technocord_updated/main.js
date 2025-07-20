@@ -15,6 +15,16 @@ class TechnoWorkstation {
         this.currentOscillators = [];
         this.bpm = 128;
         
+        // Loop Recording System
+        this.loops = [
+            { events: [], isRecording: false, isPlaying: false, startTime: 0, duration: 4000, name: 'Loop 1' },
+            { events: [], isRecording: false, isPlaying: false, startTime: 0, duration: 4000, name: 'Loop 2' },
+            { events: [], isRecording: false, isPlaying: false, startTime: 0, duration: 4000, name: 'Loop 3' }
+        ];
+        this.masterClock = 0;
+        this.clockInterval = null;
+        this.activeNotes = new Set(); // Track which keys are currently pressed
+        
         // Note frequencies for keyboard
         this.noteFrequencies = {
             'C3': 130.81, 'C#3': 138.59, 'D3': 146.83, 'D#3': 155.56, 'E3': 164.81, 'F3': 174.61,
@@ -65,8 +75,10 @@ class TechnoWorkstation {
             
             this.setupEventListeners();
             this.createKeyboard();
+            this.createLoopStation();
             this.createVisualizer();
             this.startVisualizerAnimation();
+            this.startMasterClock();
             this.updateStatus('Audio system initialized! Click any chord to start.');
         } catch (error) {
             console.error('Audio initialization failed:', error);
@@ -148,6 +160,11 @@ class TechnoWorkstation {
                 e.preventDefault();
                 this.emergencyStop();
             }
+            // ESC key stops all keyboard notes
+            if (e.code === 'Escape') {
+                e.preventDefault();
+                this.stopAllKeyboardNotes();
+            }
         });
         
         // Computer keyboard for drums (number keys)
@@ -159,6 +176,7 @@ class TechnoWorkstation {
             
             if (drumMap[e.code] && !e.repeat) {
                 this.playDrum(drumMap[e.code]);
+                this.recordEvent('drum', { type: drumMap[e.code], time: performance.now() });
                 const pad = document.querySelector(`[data-drum="${drumMap[e.code]}"]`);
                 if (pad) {
                     pad.classList.add('active');
@@ -229,6 +247,102 @@ class TechnoWorkstation {
         keyboard.appendChild(keysContainer);
     }
     
+    createLoopStation() {
+        const rightPanel = document.querySelector('.right-panel');
+        if (!rightPanel) return;
+        
+        // Create loop station HTML
+        const loopStationHTML = `
+            <div class="sound-editor">
+                <div class="section-title">Loop Station</div>
+                <div class="loop-slots">
+                    ${this.loops.map((loop, index) => `
+                        <div class="loop-slot" data-slot="${index}">
+                            <div class="slot-header">
+                                <span class="slot-name">${loop.name}</span>
+                                <span class="slot-status" id="status-${index}">Empty</span>
+                            </div>
+                            <div class="slot-controls">
+                                <button class="loop-btn record-btn" data-slot="${index}" title="Record">●</button>
+                                <button class="loop-btn play-btn" data-slot="${index}" title="Play/Stop">▶</button>
+                                <button class="loop-btn clear-btn" data-slot="${index}" title="Clear">✕</button>
+                                <button class="loop-btn download-btn" data-slot="${index}" title="Download">↓</button>
+                            </div>
+                            <div class="loop-progress">
+                                <div class="progress-bar" data-slot="${index}"></div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+                <div class="loop-master-controls">
+                    <button class="pattern-btn" id="stopAllLoops">Stop All</button>
+                    <button class="pattern-btn" id="clearAllLoops">Clear All</button>
+                </div>
+            </div>
+        `;
+        
+        // Replace existing content or add new
+        const existingEditor = rightPanel.querySelector('.sound-editor');
+        if (existingEditor) {
+            existingEditor.outerHTML = loopStationHTML;
+        } else {
+            rightPanel.insertAdjacentHTML('afterbegin', loopStationHTML);
+        }
+        
+        // Add loop station event listeners
+        this.setupLoopEventListeners();
+    }
+    
+    setupLoopEventListeners() {
+        // Record buttons
+        document.querySelectorAll('.record-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const slotIndex = parseInt(e.target.dataset.slot);
+                this.toggleLoopRecording(slotIndex);
+            });
+        });
+        
+        // Play buttons
+        document.querySelectorAll('.play-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const slotIndex = parseInt(e.target.dataset.slot);
+                this.toggleLoopPlayback(slotIndex);
+            });
+        });
+        
+        // Clear buttons
+        document.querySelectorAll('.clear-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const slotIndex = parseInt(e.target.dataset.slot);
+                this.clearLoop(slotIndex);
+            });
+        });
+        
+        // Download buttons
+        document.querySelectorAll('.download-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const slotIndex = parseInt(e.target.dataset.slot);
+                this.downloadLoop(slotIndex);
+            });
+        });
+        
+        // Master controls
+        const stopAllBtn = document.getElementById('stopAllLoops');
+        const clearAllBtn = document.getElementById('clearAllLoops');
+        
+        if (stopAllBtn) stopAllBtn.addEventListener('click', () => this.stopAllLoops());
+        if (clearAllBtn) clearAllBtn.addEventListener('click', () => this.clearAllLoops());
+    }
+    
+    startMasterClock() {
+        const clockInterval = 50; // 50ms intervals for smooth recording
+        this.clockInterval = setInterval(() => {
+            this.masterClock += clockInterval;
+            this.updateLoopProgress();
+            this.processLoopPlayback();
+        }, clockInterval);
+    }
+    
     selectChord(chordName) {
         this.selectedChord = chordName;
         const selectedChord = document.getElementById('selectedChord');
@@ -250,12 +364,19 @@ class TechnoWorkstation {
         
         const frequencies = this.chordDefinitions[this.selectedChord];
         this.playTechnoChord(frequencies);
+        
+        // Record the chord
+        this.recordEvent('chord', { 
+            chord: this.selectedChord, 
+            frequencies, 
+            time: performance.now() 
+        });
     }
     
     playNote(note) {
-        if (this.currentNote === note) return;
+        if (this.activeNotes.has(note)) return; // Prevent duplicate notes
         
-        this.stopCurrentNote();
+        this.activeNotes.add(note);
         this.currentNote = note;
         
         const frequency = this.noteFrequencies[note];
@@ -269,15 +390,40 @@ class TechnoWorkstation {
         }
         
         this.playTechnoNote(frequency);
+        
+        // Record the note start
+        this.recordEvent('noteStart', { note, frequency, time: performance.now() });
     }
     
     stopNote(note) {
-        if (this.currentNote !== note) return;
+        if (!this.activeNotes.has(note)) return;
+        
+        this.activeNotes.delete(note);
         
         const key = document.querySelector(`[data-note="${note}"]`);
         if (key) key.classList.remove('active');
         
+        // Record the note end
+        this.recordEvent('noteEnd', { note, time: performance.now() });
+        
+        // Only stop current note if it's the one being released
+        if (this.currentNote === note) {
+            this.stopCurrentNote();
+            this.currentNote = null;
+        }
+    }
+    
+    stopAllKeyboardNotes() {
+        // Stop all currently playing notes
+        this.activeNotes.forEach(note => {
+            const key = document.querySelector(`[data-note="${note}"]`);
+            if (key) key.classList.remove('active');
+        });
+        
+        this.activeNotes.clear();
         this.stopCurrentNote();
+        this.currentNote = null;
+        this.updateStatus('All keyboard notes stopped');
     }
     
     stopCurrentNote() {
@@ -430,6 +576,9 @@ class TechnoWorkstation {
                 this.createPerc(now);
                 break;
         }
+        
+        // Record drum hit
+        this.recordEvent('drum', { type: drumType, time: performance.now() });
     }
     
     createKick(time) {
@@ -749,10 +898,11 @@ class TechnoWorkstation {
     }
     
     emergencyStop() {
-        this.stopCurrentNote();
+        this.stopAllKeyboardNotes();
         this.stopSequencer();
         this.stopArpeggio();
         this.stopDrumSequencer();
+        this.stopAllLoops();
         
         if (this.gainNode) {
             this.gainNode.gain.setValueAtTime(this.gainNode.gain.value, this.audioContext.currentTime);
@@ -766,7 +916,192 @@ class TechnoWorkstation {
             }, 200);
         }
         
-        this.updateStatus('Emergency stop activated!');
+        this.updateStatus('Emergency stop activated! All audio stopped.');
+    }
+    
+    // Loop Recording System
+    recordEvent(type, data) {
+        this.loops.forEach((loop, index) => {
+            if (loop.isRecording) {
+                const relativeTime = this.masterClock - loop.startTime;
+                loop.events.push({
+                    type,
+                    data,
+                    time: relativeTime
+                });
+            }
+        });
+    }
+    
+    toggleLoopRecording(slotIndex) {
+        const loop = this.loops[slotIndex];
+        const recordBtn = document.querySelector(`.record-btn[data-slot="${slotIndex}"]`);
+        const statusEl = document.getElementById(`status-${slotIndex}`);
+        
+        if (loop.isRecording) {
+            // Stop recording
+            loop.isRecording = false;
+            loop.duration = this.masterClock - loop.startTime;
+            recordBtn.classList.remove('active');
+            recordBtn.style.backgroundColor = '';
+            statusEl.textContent = `Ready (${(loop.duration / 1000).toFixed(1)}s)`;
+            statusEl.style.color = '#ff0080';
+            this.updateStatus(`Loop ${slotIndex + 1} recorded: ${loop.events.length} events`);
+        } else {
+            // Start recording
+            loop.isRecording = true;
+            loop.startTime = this.masterClock;
+            loop.events = [];
+            recordBtn.classList.add('active');
+            recordBtn.style.backgroundColor = '#ff0000';
+            statusEl.textContent = 'Recording...';
+            statusEl.style.color = '#ff0000';
+            this.updateStatus(`Recording Loop ${slotIndex + 1}...`);
+        }
+    }
+    
+    toggleLoopPlayback(slotIndex) {
+        const loop = this.loops[slotIndex];
+        const playBtn = document.querySelector(`.play-btn[data-slot="${slotIndex}"]`);
+        const statusEl = document.getElementById(`status-${slotIndex}`);
+        
+        if (loop.isPlaying) {
+            // Stop playback
+            loop.isPlaying = false;
+            playBtn.classList.remove('active');
+            playBtn.textContent = '▶';
+            statusEl.textContent = `Ready (${(loop.duration / 1000).toFixed(1)}s)`;
+            statusEl.style.color = '#ff0080';
+        } else if (loop.events.length > 0) {
+            // Start playback
+            loop.isPlaying = true;
+            loop.playbackStartTime = this.masterClock;
+            playBtn.classList.add('active');
+            playBtn.textContent = '■';
+            statusEl.textContent = 'Playing...';
+            statusEl.style.color = '#00ff88';
+            this.updateStatus(`Playing Loop ${slotIndex + 1}`);
+        }
+    }
+    
+    clearLoop(slotIndex) {
+        const loop = this.loops[slotIndex];
+        const statusEl = document.getElementById(`status-${slotIndex}`);
+        const recordBtn = document.querySelector(`.record-btn[data-slot="${slotIndex}"]`);
+        const playBtn = document.querySelector(`.play-btn[data-slot="${slotIndex}"]`);
+        
+        loop.events = [];
+        loop.isRecording = false;
+        loop.isPlaying = false;
+        loop.duration = 4000;
+        
+        recordBtn.classList.remove('active');
+        playBtn.classList.remove('active');
+        recordBtn.style.backgroundColor = '';
+        playBtn.textContent = '▶';
+        statusEl.textContent = 'Empty';
+        statusEl.style.color = '#666';
+        
+        this.updateStatus(`Loop ${slotIndex + 1} cleared`);
+    }
+    
+    downloadLoop(slotIndex) {
+        const loop = this.loops[slotIndex];
+        
+        if (loop.events.length === 0) {
+            this.updateStatus('Loop is empty - nothing to download');
+            return;
+        }
+        
+        const loopData = {
+            name: loop.name,
+            duration: loop.duration,
+            events: loop.events,
+            bpm: this.bpm,
+            timestamp: new Date().toISOString()
+        };
+        
+        const dataStr = JSON.stringify(loopData, null, 2);
+        const dataBlob = new Blob([dataStr], { type: 'application/json' });
+        const url = URL.createObjectURL(dataBlob);
+        
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `${loop.name.replace(/\s+/g, '_')}_${Date.now()}.json`;
+        link.click();
+        
+        URL.revokeObjectURL(url);
+        this.updateStatus(`Loop ${slotIndex + 1} downloaded`);
+    }
+    
+    stopAllLoops() {
+        this.loops.forEach((loop, index) => {
+            if (loop.isPlaying) {
+                this.toggleLoopPlayback(index);
+            }
+        });
+        this.updateStatus('All loops stopped');
+    }
+    
+    clearAllLoops() {
+        this.loops.forEach((_, index) => {
+            this.clearLoop(index);
+        });
+        this.updateStatus('All loops cleared');
+    }
+    
+    processLoopPlayback() {
+        this.loops.forEach((loop, index) => {
+            if (loop.isPlaying && loop.events.length > 0) {
+                const elapsed = this.masterClock - loop.playbackStartTime;
+                const loopPosition = elapsed % loop.duration;
+                
+                loop.events.forEach(event => {
+                    const eventTime = event.time;
+                    const timeDiff = Math.abs(loopPosition - eventTime);
+                    
+                    // Play event if we're within 50ms of its time
+                    if (timeDiff < 50) {
+                        this.playLoopEvent(event);
+                    }
+                });
+            }
+        });
+    }
+    
+    playLoopEvent(event) {
+        switch (event.type) {
+            case 'noteStart':
+                this.playTechnoNote(event.data.frequency);
+                break;
+            case 'chord':
+                this.playTechnoChord(event.data.frequencies);
+                break;
+            case 'drum':
+                this.playDrum(event.data.type);
+                break;
+        }
+    }
+    
+    updateLoopProgress() {
+        this.loops.forEach((loop, index) => {
+            const progressBar = document.querySelector(`.progress-bar[data-slot="${index}"]`);
+            if (!progressBar) return;
+            
+            if (loop.isRecording) {
+                const elapsed = this.masterClock - loop.startTime;
+                const progress = Math.min((elapsed / 8000) * 100, 100); // 8 second max
+                progressBar.style.width = `${progress}%`;
+                progressBar.style.background = 'linear-gradient(90deg, #ff0000, #ff0080)';
+            } else if (loop.isPlaying && loop.duration > 0) {
+                const elapsed = this.masterClock - loop.playbackStartTime;
+                const progress = (elapsed % loop.duration) / loop.duration * 100;
+                progressBar.style.width = `${progress}%`;
+                progressBar.style.background = 'linear-gradient(90deg, #00ff88, #00ccff)';
+            } else {
+                progressBar.style.width = '0%';
+            }
+        });
     }
     
     createVisualizer() {
