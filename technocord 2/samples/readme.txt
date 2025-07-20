@@ -1,0 +1,1 @@
+This folder holds drum sample .wav files like kick.wav, snare.wav, etc.
