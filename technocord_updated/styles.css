@@ -1,1 +1,456 @@
-/* Add your CSS here */
+body {
+    font-family: 'Courier New', monospace;
+    background: linear-gradient(135deg, #0a0a0a, #1a1a2e, #16213e);
+    color: #00ff88;
+    margin: 0;
+    padding: 20px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow-x: hidden;
+}
+
+.workstation-container {
+    background: linear-gradient(145deg, #0f0f23, #1a1a2e);
+    border: 2px solid #00ff88;
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 
+        0 0 20px rgba(0, 255, 136, 0.3),
+        inset 0 0 20px rgba(0, 0, 0, 0.5);
+    max-width: 1200px;
+    width: 100%;
+    position: relative;
+}
+
+.workstation-container::before {
+    content: "";
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, #00ff88, #ff0080, #8000ff, #00ff88);
+    z-index: -1;
+    border-radius: 15px;
+    animation: borderGlow 3s linear infinite;
+    background-size: 300% 300%;
+}
+
+@keyframes borderGlow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.header-nav {
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(0, 255, 136, 0.2);
+}
+
+.back-button {
+    background: linear-gradient(145deg, #1a1a2e, #0f0f23);
+    border: 1px solid #00ff88;
+    color: #00ff88;
+    padding: 8px 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    transition: all 0.2s;
+    font-family: 'Courier New', monospace;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.back-button:hover {
+    background: linear-gradient(145deg, #00ff88, #00cc6a);
+    color: #0f0f23;
+    box-shadow: 0 0 15px #00ff88;
+    transform: translateY(-2px);
+}
+
+h1 {
+    text-align: center;
+    color: #00ff88;
+    margin-bottom: 30px;
+    font-size: 2.5em;
+    text-shadow: 0 0 10px #00ff88;
+    letter-spacing: 3px;
+}
+
+.main-layout {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 30px;
+    margin-bottom: 30px;
+}
+
+.left-panel, .right-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.controls-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.chord-section, .synth-controls, .sound-editor, .drum-machine {
+    background: rgba(0, 255, 136, 0.1);
+    border: 1px solid #00ff88;
+    border-radius: 10px;
+    padding: 20px;
+}
+
+.section-title {
+    color: #ff0080;
+    font-size: 1.2em;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.chord-buttons {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.chord-btn {
+    background: linear-gradient(145deg, #1a1a2e, #0f0f23);
+    border: 1px solid #00ff88;
+    color: #00ff88;
+    padding: 10px 6px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: bold;
+    transition: all 0.2s;
+    font-family: 'Courier New', monospace;
+    text-transform: uppercase;
+}
+
+.chord-btn:hover {
+    background: linear-gradient(145deg, #00ff88, #00cc6a);
+    color: #0f0f23;
+    box-shadow: 0 0 15px #00ff88;
+    transform: scale(1.05);
+}
+
+.chord-btn.active {
+    background: linear-gradient(145deg, #ff0080, #cc0066);
+    color: white;
+    box-shadow: 0 0 20px #ff0080;
+}
+
+.keyboard-container {
+    background: rgba(255, 0, 128, 0.1);
+    border: 1px solid #ff0080;
+    border-radius: 10px;
+    padding: 20px;
+    margin: 20px 0;
+}
+
+.keyboard {
+    position: relative;
+    margin: 20px auto;
+    width: fit-content;
+    height: 200px;
+    background: linear-gradient(to bottom, #2a2a2a, #1a1a1a);
+    border-radius: 12px;
+    padding: 15px;
+    box-shadow: 
+        0 8px 25px rgba(0, 0, 0, 0.6),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.8);
+}
+
+.keys-container {
+    position: relative;
+    height: 170px;
+    display: flex;
+    align-items: flex-start;
+}
+
+.key {
+    cursor: pointer;
+    transition: all 0.1s ease;
+    user-select: none;
+    display: flex;
+    align-items: end;
+    justify-content: center;
+    font-size: 9px;
+    font-weight: bold;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    position: relative;
+}
+
+.key.white {
+    width: 44px;
+    height: 170px;
+    background: linear-gradient(to bottom, #ffffff 0%, #f8f8f8 50%, #e8e8e8 100%);
+    border: 1px solid #d0d0d0;
+    border-radius: 0 0 8px 8px;
+    color: #333;
+    z-index: 1;
+    margin-right: 1px;
+    box-shadow: 
+        0 6px 12px rgba(0, 0, 0, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.8),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+    padding-bottom: 15px;
+}
+
+.key.white:hover {
+    background: linear-gradient(to bottom, #f5f5f5 0%, #eeeeee 50%, #ddd 100%);
+    transform: translateY(2px);
+}
+
+.key.white:active, .key.white.active {
+    background: linear-gradient(to bottom, #ff0080 0%, #e6007a 50%, #cc0066 100%) !important;
+    color: white !important;
+    transform: translateY(4px);
+    box-shadow: 0 0 20px rgba(255, 0, 128, 0.6) !important;
+}
+
+.key.black {
+    width: 28px;
+    height: 110px;
+    background: linear-gradient(to bottom, #3a3a3a 0%, #2a2a2a 30%, #1a1a1a 70%, #0a0a0a 100%);
+    border: 1px solid #000;
+    border-radius: 0 0 6px 6px;
+    color: #ccc;
+    position: absolute;
+    z-index: 2;
+    box-shadow: 
+        0 8px 16px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.8);
+    padding-bottom: 12px;
+}
+
+.key.black:hover {
+    background: linear-gradient(to bottom, #4a4a4a 0%, #3a3a3a 30%, #2a2a2a 70%, #1a1a1a 100%);
+    transform: translateY(2px);
+}
+
+.key.black:active, .key.black.active {
+    background: linear-gradient(to bottom, #ff0080 0%, #e6007a 50%, #cc0066 100%) !important;
+    color: white !important;
+    transform: translateY(4px);
+    box-shadow: 0 0 20px rgba(255, 0, 128, 0.8) !important;
+}
+
+/* Black key positioning */
+.key.black[data-note="C#3"] { left: 31px; }
+.key.black[data-note="D#3"] { left: 76px; }
+.key.black[data-note="F#3"] { left: 166px; }
+.key.black[data-note="G#3"] { left: 211px; }
+.key.black[data-note="A#3"] { left: 256px; }
+.key.black[data-note="C#4"] { left: 346px; }
+.key.black[data-note="D#4"] { left: 391px; }
+
+.keyboard-instructions {
+    text-align: center;
+    margin-top: 10px;
+    font-size: 11px;
+    color: #8000ff;
+}
+
+.drum-machine {
+    background: rgba(255, 0, 128, 0.1);
+    border: 1px solid #ff0080;
+    border-radius: 10px;
+    padding: 20px;
+    margin: 20px 0;
+}
+
+.drum-pads {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.drum-pad {
+    background: linear-gradient(145deg, #1a1a2e, #0f0f23);
+    border: 1px solid #ff0080;
+    color: #ff0080;
+    padding: 15px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: bold;
+    transition: all 0.1s;
+    font-family: 'Courier New', monospace;
+    text-transform: uppercase;
+    min-height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.drum-pad:hover {
+    background: linear-gradient(145deg, #ff0080, #cc0066);
+    color: white;
+    transform: scale(1.05);
+}
+
+.drum-pad:active, .drum-pad.active {
+    background: linear-gradient(145deg, #00ff88, #00cc6a) !important;
+    color: #0f0f23 !important;
+    transform: scale(0.95);
+    box-shadow: 0 0 20px #00ff88;
+}
+
+.control-group {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.control-label {
+    color: #00ff88;
+    font-size: 12px;
+    min-width: 80px;
+}
+
+.control-input {
+    background: #0f0f23;
+    border: 1px solid #00ff88;
+    color: #00ff88;
+    padding: 5px 10px;
+    border-radius: 3px;
+    width: 100px;
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+}
+
+.control-input:focus {
+    outline: none;
+    box-shadow: 0 0 10px #00ff88;
+}
+
+.pattern-controls {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.pattern-btn {
+    background: linear-gradient(145deg, #1a1a2e, #0f0f23);
+    border: 1px solid #ff0080;
+    color: #ff0080;
+    padding: 10px 16px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: bold;
+    transition: all 0.2s;
+    font-family: 'Courier New', monospace;
+    text-transform: uppercase;
+}
+
+.pattern-btn:hover {
+    background: linear-gradient(145deg, #ff0080, #cc0066);
+    color: white;
+    box-shadow: 0 0 15px #ff0080;
+    transform: scale(1.05);
+}
+
+.pattern-btn.active {
+    background: linear-gradient(145deg, #8000ff, #6600cc);
+    color: white;
+    box-shadow: 0 0 20px #8000ff;
+}
+
+.visualizer {
+    height: 60px;
+    background: #0f0f23;
+    border: 1px solid #00ff88;
+    border-radius: 5px;
+    margin: 15px 0;
+    display: flex;
+    align-items: end;
+    justify-content: space-around;
+    padding: 5px;
+    overflow: hidden;
+}
+
+.bar {
+    width: 6px;
+    background: linear-gradient(to top, #00ff88, #ff0080);
+    border-radius: 2px;
+    transition: height 0.1s ease;
+    height: 10px;
+}
+
+.selected-chord {
+    text-align: center;
+    font-size: 16px;
+    margin: 10px 0;
+    color: #ff0080;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.bpm-display {
+    text-align: center;
+    color: #8000ff;
+    font-size: 20px;
+    font-weight: bold;
+    margin: 10px 0;
+    text-shadow: 0 0 10px #8000ff;
+}
+
+.status-display {
+    text-align: center;
+    margin: 15px 0;
+    padding: 10px;
+    background: rgba(0, 255, 136, 0.1);
+    border: 1px solid rgba(0, 255, 136, 0.3);
+    border-radius: 5px;
+    font-size: 12px;
+    color: #00ff88;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .main-layout {
+        grid-template-columns: 1fr;
+    }
+    
+    .controls-section {
+        grid-template-columns: 1fr;
+    }
+    
+    .chord-buttons {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .key.white {
+        width: 35px;
+    }
+    
+    .key.black {
+        width: 22px;
+    }
+    
+    .key.black[data-note="C#3"] { left: 25px; }
+    .key.black[data-note="D#3"] { left: 61px; }
+    .key.black[data-note="F#3"] { left: 133px; }
+    .key.black[data-note="G#3"] { left: 169px; }
+    .key.black[data-note="A#3"] { left: 205px; }
+    .key.black[data-note="C#4"] { left: 277px; }
+    .key.black[data-note="D#4"] { left: 313px; }
+}
