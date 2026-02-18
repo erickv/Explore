@@ -1,15 +1,16 @@
 {
   "files": {
-    "main.css": "/Explore/Sound-exploration/music-synthesizer/static/css/main.b3893aaf.css",
-    "main.js": "/Explore/Sound-exploration/music-synthesizer/static/js/main.5c5f0e63.js",
+    "main.css": "/Explore/Sound-exploration/music-synthesizer/static/css/main.c43539f6.css",
+    "main.js": "/Explore/Sound-exploration/music-synthesizer/static/js/main.df1d46dd.js",
     "static/js/453.ad252468.chunk.js": "/Explore/Sound-exploration/music-synthesizer/static/js/453.ad252468.chunk.js",
+    "service-worker.js": "/Explore/Sound-exploration/music-synthesizer/service-worker.js",
     "index.html": "/Explore/Sound-exploration/music-synthesizer/index.html",
-    "main.b3893aaf.css.map": "/Explore/Sound-exploration/music-synthesizer/static/css/main.b3893aaf.css.map",
-    "main.5c5f0e63.js.map": "/Explore/Sound-exploration/music-synthesizer/static/js/main.5c5f0e63.js.map",
+    "main.c43539f6.css.map": "/Explore/Sound-exploration/music-synthesizer/static/css/main.c43539f6.css.map",
+    "main.df1d46dd.js.map": "/Explore/Sound-exploration/music-synthesizer/static/js/main.df1d46dd.js.map",
     "453.ad252468.chunk.js.map": "/Explore/Sound-exploration/music-synthesizer/static/js/453.ad252468.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.b3893aaf.css",
-    "static/js/main.5c5f0e63.js"
+    "static/css/main.c43539f6.css",
+    "static/js/main.df1d46dd.js"
   ]
 }
